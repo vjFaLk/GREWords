@@ -8,6 +8,8 @@ import android.view.View;
 import android.view.Window;
 import android.view.animation.AccelerateDecelerateInterpolator;
 import android.view.animation.AccelerateInterpolator;
+import android.view.animation.AlphaAnimation;
+import android.view.animation.Animation;
 import android.view.animation.BounceInterpolator;
 import android.view.animation.DecelerateInterpolator;
 import android.view.animation.TranslateAnimation;
@@ -61,6 +63,8 @@ public class MainActivity extends Activity {
                 showDefinition();
             }
         });
+
+
     }
 
 
@@ -69,6 +73,8 @@ public class MainActivity extends Activity {
         mainText = (TextView) findViewById(R.id.textView);
         DataBaseHelper data;
         data = new DataBaseHelper(this);
+        Animation in = new AlphaAnimation(0.0f, 1.0f);
+        in.setDuration(500);
 
 
 
@@ -83,6 +89,7 @@ public class MainActivity extends Activity {
 
             data.openDataBase();
            mainText.setText(data.getWord());
+            mainText.setAnimation(in);
            definition = data.getDefinition();
         } catch (SQLException sqle) {
 
@@ -103,8 +110,12 @@ public class MainActivity extends Activity {
         translation.setFillAfter(true);
         translation.setInterpolator(new DecelerateInterpolator());
         findViewById(R.id.textView).startAnimation(translation);
+        Animation in = new AlphaAnimation(0.0f, 1.0f);
+        in.setDuration(500);
         defText.setText(definition);
+        defText.startAnimation(in);
         shownDef = true;
+
 
 
     }
