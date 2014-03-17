@@ -23,7 +23,7 @@ public class MainActivity extends Activity {
     String definition = "", word = "";
     TextView mainText, defText;
     int currentIndex =-1;
-    Button nextBut, prevBut;
+    Button prevButt, nextButt;
     boolean shownDef = false;
     boolean shownFade = false;
     List wordList = new ArrayList();
@@ -50,9 +50,9 @@ public class MainActivity extends Activity {
     {
         defText = (TextView) findViewById(R.id.textView2);
         mainText = (TextView) findViewById(R.id.textView);
-        nextBut = (Button) findViewById(R.id.buttonNext);
-        prevBut = (Button) findViewById(R.id.buttonPrev);
-        prevBut.setVisibility(View.GONE);
+        prevButt = (Button) findViewById(R.id.buttonPrev);
+        nextButt = (Button) findViewById(R.id.buttonNext);
+        nextButt.setVisibility(View.GONE);
 
     }
 
@@ -60,7 +60,7 @@ public class MainActivity extends Activity {
 
 
 
-        nextBut.setOnClickListener(new View.OnClickListener() {
+        prevButt.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
 
@@ -74,29 +74,26 @@ public class MainActivity extends Activity {
                 }
 
 
-                if(!shownFade)
-                {
-                    prevBut.setVisibility(View.VISIBLE);
-                    prevBut.setAnimation(in);
+                if (!shownFade) {
+                    nextButt.setVisibility(View.VISIBLE);
+                    nextButt.setAnimation(in);
                     shownFade = true;
                 }
 
-                if(((wordList.size())-1)>currentIndex)
-                getWordFromList();
+                if (((wordList.size()) - 1) > currentIndex)
+                    getWordFromList();
                 else
-                newWord();
-
-
+                    newWord();
 
 
             }
         });
 
-        prevBut.setOnClickListener(new View.OnClickListener() {
+        nextButt.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if(currentIndex>0)
-                goBack();
+                if (currentIndex > 0)
+                    goBack();
 
 
             }
@@ -117,13 +114,13 @@ public class MainActivity extends Activity {
 
     private void hideDefinition() {
         Animation out = new AlphaAnimation(1.0f, 0.0f);
-        out.setDuration(500);
+        out.setDuration(300);
         defText.setVisibility(View.GONE);
         defText.setAnimation(out);
         TranslateAnimation translation;
-        translation = new TranslateAnimation(0f, 0f, getDisplayHeight()-350, 0f);
+        translation = new TranslateAnimation(0f, 0f,(getDisplayHeight()-getDisplayHeight()/2), 0f);
         translation.setStartOffset(0);
-        translation.setDuration(500);
+        translation.setDuration(400);
         translation.setFillAfter(true);
         translation.setInterpolator(new DecelerateInterpolator());
         findViewById(R.id.textView).startAnimation(translation);
@@ -133,13 +130,13 @@ public class MainActivity extends Activity {
     private void showDefinition() {
 
         Animation in = new AlphaAnimation(0.0f, 1.0f);
-        in.setDuration(500);
+        in.setDuration(300);
         findViewById(R.id.textView).clearAnimation();
         defText.setVisibility(View.VISIBLE);
         TranslateAnimation translation;
-        translation = new TranslateAnimation(0f, 0F, 0f, getDisplayHeight() - 350);
+        translation = new TranslateAnimation(0f, 0F, 0f, (getDisplayHeight()-getDisplayHeight()/2));
         translation.setStartOffset(0);
-        translation.setDuration(500);
+        translation.setDuration(400);
         translation.setFillAfter(true);
         translation.setInterpolator(new DecelerateInterpolator());
         findViewById(R.id.textView).startAnimation(translation);
@@ -171,8 +168,8 @@ public class MainActivity extends Activity {
 
         if(currentIndex<1)
         {
-            prevBut.setVisibility(View.GONE);
-            prevBut.setAnimation(out);
+            nextButt.setVisibility(View.GONE);
+            nextButt.setAnimation(out);
             shownFade = false;
             return false;
         }
