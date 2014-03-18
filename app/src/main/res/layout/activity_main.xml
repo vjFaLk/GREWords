@@ -5,7 +5,7 @@
     android:layout_height="match_parent"
     tools:context="com.v.GREWords.MainActivity"
     tools:ignore="MergeRootFrame"
-    android:background="#dddddd">
+    android:background="#d3d3d3">
 
     <TextView
         android:layout_width="wrap_content"
@@ -30,8 +30,8 @@
     <Button
         android:layout_width="wrap_content"
         android:layout_height="60dp"
-        android:id="@+id/buttonNext"
-        android:background="@drawable/ic_action_next_item"
+        android:id="@+id/buttonPrev"
+        android:background="@drawable/action_prev_item"
         android:layout_above="@+id/textView"
         android:layout_marginBottom="56dp"
         android:layout_centerHorizontal="true"/>
@@ -39,8 +39,8 @@
     <Button
         android:layout_width="wrap_content"
         android:layout_height="60dp"
-        android:id="@+id/buttonPrev"
-        android:background="@drawable/ic_action_prev_item"
+        android:id="@+id/buttonNext"
+        android:background="@drawable/action_next_item"
         android:layout_below="@+id/textView"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="56dp"
@@ -54,7 +54,19 @@
         android:background="@drawable/ic_action_volume_on"
         android:layout_alignParentTop="true"
         android:layout_alignParentRight="true"
-        android:layout_alignParentEnd="true"
         android:layout_marginTop="15dp"
         android:layout_marginRight="15dp" />
+
+    <Button
+        style="?android:attr/buttonStyleSmall"
+        android:layout_width="35dp"
+        android:layout_height="35dp"
+        android:id="@+id/NightButton"
+        android:background="@drawable/ic_action_brightness_high"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentTop="true"
+        android:layout_marginTop="15dp"
+        android:layout_marginLeft="15dp" />
+
+
 </RelativeLayout>

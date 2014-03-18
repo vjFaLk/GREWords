@@ -1,7 +1,10 @@
 package com.v.GREWords;
 
+import android.animation.ArgbEvaluator;
+import android.animation.ObjectAnimator;
 import android.app.Activity;
 import android.database.SQLException;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.speech.tts.TextToSpeech;
 import android.util.DisplayMetrics;
@@ -12,6 +15,7 @@ import android.view.animation.Animation;
 import android.view.animation.DecelerateInterpolator;
 import android.view.animation.TranslateAnimation;
 import android.widget.Button;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import java.io.IOException;
@@ -25,9 +29,8 @@ public class MainActivity extends Activity {
     String definition = "", word = "";
     TextView mainText, defText;
     int currentIndex = -1;
-    Button prevButt, nextButt, TTSButt;
-    boolean shownDef = false;
-    boolean shownFade = false;
+    Button prevButt, nextButt, TTSButt, nightModeButt;
+    boolean shownDef = false, shownFade = false, isNightMode = false;
     TextToSpeech TTSObj;
     List wordList = new ArrayList();
     List defList = new ArrayList();
@@ -52,12 +55,44 @@ public class MainActivity extends Activity {
         prevButt = (Button) findViewById(R.id.buttonPrev);
         nextButt = (Button) findViewById(R.id.buttonNext);
         TTSButt = (Button) findViewById(R.id.TTSButton);
-        nextButt.setVisibility(View.GONE);
+        nightModeButt = (Button) findViewById(R.id.NightButton);
+        prevButt.setVisibility(View.GONE);
 
     }
 
     private void setActionListeners() {
 
+        nightModeButt.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                RelativeLayout lay = (RelativeLayout) findViewById(R.id.container);
+                ObjectAnimator colorFade = ObjectAnimator.ofObject(lay, "backgroundColor", new ArgbEvaluator(), Color.argb(255, 255, 255, 255), 0xff000000);
+                colorFade.setDuration(1000);
+
+                if (!isNightMode) {
+                    colorFade.start();
+                    mainText.setTextColor(Color.LTGRAY);
+                    defText.setTextColor(Color.LTGRAY);
+                    prevButt.setBackgroundResource(R.drawable.n_ic_action_prev_item);
+                    nextButt.setBackgroundResource(R.drawable.n_ic_action_next_item);
+                    nightModeButt.setBackgroundResource(R.drawable.n_ic_action_brightness_high);
+                    TTSButt.setBackgroundResource(R.drawable.n_ic_action_volume_on);
+
+                    isNightMode = true;
+                } else {
+                    colorFade.reverse();
+                    mainText.setTextColor(Color.BLACK);
+                    defText.setTextColor(Color.BLACK);
+                    prevButt.setBackgroundResource(R.drawable.action_prev_item);
+                    nextButt.setBackgroundResource(R.drawable.action_next_item);
+                    nightModeButt.setBackgroundResource(R.drawable.ic_action_brightness_high);
+                    TTSButt.setBackgroundResource(R.drawable.ic_action_volume_on);
+                    isNightMode = false;
+                }
+
+
+            }
+        });
 
         TTSObj = new TextToSpeech(getApplicationContext(), new TextToSpeech.OnInitListener() {
             @Override
@@ -76,7 +111,7 @@ public class MainActivity extends Activity {
             }
         });
 
-        prevButt.setOnClickListener(new View.OnClickListener() {
+        nextButt.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
 
@@ -91,8 +126,8 @@ public class MainActivity extends Activity {
 
 
                 if (!shownFade) {
-                    nextButt.setVisibility(View.VISIBLE);
-                    nextButt.setAnimation(in);
+                    prevButt.setVisibility(View.VISIBLE);
+                    prevButt.setAnimation(in);
                     shownFade = true;
                 }
 
@@ -105,7 +140,7 @@ public class MainActivity extends Activity {
             }
         });
 
-        nextButt.setOnClickListener(new View.OnClickListener() {
+        prevButt.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 if (currentIndex > 0)
@@ -124,9 +159,6 @@ public class MainActivity extends Activity {
                     hideDefinition();
             }
         });
-
-
-
 
     }
 
