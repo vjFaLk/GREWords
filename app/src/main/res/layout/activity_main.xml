@@ -5,7 +5,7 @@
     android:layout_height="match_parent"
     tools:context="com.v.GREWords.MainActivity"
     tools:ignore="MergeRootFrame"
-    android:background="#c8c8c4">
+    android:background="#e7e7e3">
 
     <TextView
         android:layout_width="wrap_content"

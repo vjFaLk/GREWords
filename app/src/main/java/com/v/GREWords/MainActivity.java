@@ -11,6 +11,7 @@ import android.view.animation.Animation;
 import android.view.animation.DecelerateInterpolator;
 import android.view.animation.TranslateAnimation;
 import android.widget.Button;
+import android.widget.SearchView;
 import android.widget.TextView;
 
 import java.io.IOException;
@@ -22,14 +23,13 @@ public class MainActivity extends Activity {
 
     String definition = "", word = "";
     TextView mainText, defText;
-    int currentIndex =-1;
+    int currentIndex = -1;
     Button prevButt, nextButt;
+    SearchView search;
     boolean shownDef = false;
     boolean shownFade = false;
     List wordList = new ArrayList();
     List defList = new ArrayList();
-
-
 
 
     @Override
@@ -45,19 +45,17 @@ public class MainActivity extends Activity {
     }
 
 
-
-    private void Initialize()
-    {
+    private void Initialize() {
         defText = (TextView) findViewById(R.id.textView2);
         mainText = (TextView) findViewById(R.id.textView);
         prevButt = (Button) findViewById(R.id.buttonPrev);
         nextButt = (Button) findViewById(R.id.buttonNext);
+        search = (SearchView)findViewById(R.id.searchView);
         nextButt.setVisibility(View.GONE);
 
     }
 
     private void setActionListeners() {
-
 
 
         prevButt.setOnClickListener(new View.OnClickListener() {
@@ -110,6 +108,8 @@ public class MainActivity extends Activity {
         });
 
 
+
+
     }
 
     private void hideDefinition() {
@@ -118,7 +118,7 @@ public class MainActivity extends Activity {
         defText.setVisibility(View.GONE);
         defText.setAnimation(out);
         TranslateAnimation translation;
-        translation = new TranslateAnimation(0f, 0f,(getDisplayHeight()-getDisplayHeight()/2), 0f);
+        translation = new TranslateAnimation(0f, 0f, (getDisplayHeight() - getDisplayHeight() / 2), 0f);
         translation.setStartOffset(0);
         translation.setDuration(400);
         translation.setFillAfter(true);
@@ -134,7 +134,7 @@ public class MainActivity extends Activity {
         findViewById(R.id.textView).clearAnimation();
         defText.setVisibility(View.VISIBLE);
         TranslateAnimation translation;
-        translation = new TranslateAnimation(0f, 0F, 0f, (getDisplayHeight()-getDisplayHeight()/2));
+        translation = new TranslateAnimation(0f, 0F, 0f, (getDisplayHeight() - getDisplayHeight() / 2));
         translation.setStartOffset(0);
         translation.setDuration(400);
         translation.setFillAfter(true);
@@ -161,13 +161,11 @@ public class MainActivity extends Activity {
 
     }
 
-    private boolean checkStack()
-    {
+    private boolean checkStack() {
         Animation out = new AlphaAnimation(1.0f, 0.0f);
         out.setDuration(200);
 
-        if(currentIndex<1)
-        {
+        if (currentIndex < 1) {
             nextButt.setVisibility(View.GONE);
             nextButt.setAnimation(out);
             shownFade = false;
@@ -176,8 +174,7 @@ public class MainActivity extends Activity {
         return true;
     }
 
-    private void goBack()
-    {
+    private void goBack() {
         currentIndex--;
         Animation in = new AlphaAnimation(0.0f, 1.0f);
         in.setDuration(200);
@@ -198,7 +195,6 @@ public class MainActivity extends Activity {
         data = new DataBaseHelper(this);
         Animation in = new AlphaAnimation(0.0f, 1.0f);
         in.setDuration(500);
-
 
 
         try {
@@ -226,7 +222,6 @@ public class MainActivity extends Activity {
 
         shownDef = false;
     }
-
 
 
     private int getDisplayHeight() {
