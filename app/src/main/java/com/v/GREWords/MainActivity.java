@@ -220,8 +220,8 @@ public class MainActivity extends Activity {
         out.setDuration(200);
 
         if (currentIndex < 1) {
-            nextButt.setVisibility(View.GONE);
-            nextButt.setAnimation(out);
+            prevButt.setVisibility(View.GONE);
+            prevButt.setAnimation(out);
             shownFade = false;
             return false;
         }
