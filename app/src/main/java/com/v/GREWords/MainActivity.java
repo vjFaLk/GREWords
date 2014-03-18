@@ -66,7 +66,7 @@ public class MainActivity extends Activity {
             @Override
             public void onClick(View view) {
                 RelativeLayout lay = (RelativeLayout) findViewById(R.id.container);
-                ObjectAnimator colorFade = ObjectAnimator.ofObject(lay, "backgroundColor", new ArgbEvaluator(), Color.argb(255, 255, 255, 255), 0xff000000);
+                ObjectAnimator colorFade = ObjectAnimator.ofObject(lay, "backgroundColor", new ArgbEvaluator(), Color.argb(211, 211, 211, 211), 0xff000000);
                 colorFade.setDuration(1000);
 
                 if (!isNightMode) {
