@@ -3,6 +3,7 @@ package com.v.GREWords;
 import android.app.Activity;
 import android.database.SQLException;
 import android.os.Bundle;
+import android.speech.tts.TextToSpeech;
 import android.util.DisplayMetrics;
 import android.view.View;
 import android.view.Window;
@@ -11,12 +12,12 @@ import android.view.animation.Animation;
 import android.view.animation.DecelerateInterpolator;
 import android.view.animation.TranslateAnimation;
 import android.widget.Button;
-import android.widget.SearchView;
 import android.widget.TextView;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 public class MainActivity extends Activity {
 
@@ -24,10 +25,10 @@ public class MainActivity extends Activity {
     String definition = "", word = "";
     TextView mainText, defText;
     int currentIndex = -1;
-    Button prevButt, nextButt;
-    SearchView search;
+    Button prevButt, nextButt, TTSButt;
     boolean shownDef = false;
     boolean shownFade = false;
+    TextToSpeech TTSObj;
     List wordList = new ArrayList();
     List defList = new ArrayList();
 
@@ -41,8 +42,6 @@ public class MainActivity extends Activity {
         setActionListeners();
         newWord();
 
-        //Test Comment
-
 
     }
 
@@ -52,13 +51,30 @@ public class MainActivity extends Activity {
         mainText = (TextView) findViewById(R.id.textView);
         prevButt = (Button) findViewById(R.id.buttonPrev);
         nextButt = (Button) findViewById(R.id.buttonNext);
-        search = (SearchView)findViewById(R.id.searchView);
+        TTSButt = (Button) findViewById(R.id.TTSButton);
         nextButt.setVisibility(View.GONE);
 
     }
 
     private void setActionListeners() {
 
+
+        TTSObj = new TextToSpeech(getApplicationContext(), new TextToSpeech.OnInitListener() {
+            @Override
+            public void onInit(int status) {
+                if (status != TextToSpeech.ERROR) {
+                    TTSObj.setLanguage(Locale.US);
+                }
+
+            }
+        });
+
+        TTSButt.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                PronounceWord();
+            }
+        });
 
         prevButt.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -112,6 +128,10 @@ public class MainActivity extends Activity {
 
 
 
+    }
+
+    private void PronounceWord() {
+        TTSObj.speak(word, TextToSpeech.QUEUE_FLUSH, null);
     }
 
     private void hideDefinition() {
