@@ -33,7 +33,7 @@
         android:id="@+id/buttonPrev"
         android:background="@drawable/action_prev_item"
         android:layout_above="@+id/textView"
-        android:layout_marginBottom="56dp"
+        android:layout_marginBottom="45dp"
         android:layout_centerHorizontal="true"/>
 
     <Button
@@ -43,7 +43,7 @@
         android:background="@drawable/action_next_item"
         android:layout_below="@+id/textView"
         android:layout_centerHorizontal="true"
-        android:layout_marginTop="56dp"
+        android:layout_marginTop="45dp"
 
         />
 
@@ -52,9 +52,9 @@
         android:layout_height="35dp"
         android:id="@+id/TTSButton"
         android:background="@drawable/ic_action_volume_on"
-        android:layout_alignParentTop="true"
+        android:layout_alignParentBottom="true"
         android:layout_alignParentRight="true"
-        android:layout_marginTop="15dp"
+        android:layout_marginBottom="15dp"
         android:layout_marginRight="15dp" />
 
     <Button
@@ -63,29 +63,35 @@
         android:layout_height="35dp"
         android:id="@+id/NightButton"
         android:background="@drawable/ic_action_brightness_high"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentTop="true"
-        android:layout_marginTop="15dp"
-        android:layout_marginLeft="15dp" />
+        android:layout_marginBottom="15dp"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+
+        />
 
     <Button
         style="?android:attr/buttonStyleSmall"
         android:layout_width="35dp"
         android:layout_height="35dp"
         android:id="@+id/resetButton"
-        android:layout_marginTop="15dp"
-        android:layout_alignParentTop="true"
-        android:layout_centerHorizontal="true"
-        android:background="@drawable/ic_action_refresh" />
+        android:background="@drawable/ic_action_refresh"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentBottom="true"
+        android:layout_marginBottom="15dp"
+        android:layout_marginLeft="15dp" />
 
     <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/invisibleButton"
-        android:layout_below="@+id/buttonNext"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="29dp"
-        android:background="@android:color/transparent" />
+        android:layout_marginTop="45dp"
+        android:background="@android:color/transparent"
+        android:layout_alignParentTop="true"
+        android:layout_alignLeft="@+id/textView"
+        android:layout_alignStart="@+id/textView"
+        android:layout_alignRight="@+id/textView"
+        android:layout_alignEnd="@+id/textView"
+        android:layout_above="@+id/buttonPrev" />
 
 
 </RelativeLayout>

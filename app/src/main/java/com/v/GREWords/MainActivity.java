@@ -11,9 +11,9 @@ import android.speech.tts.TextToSpeech;
 import android.util.DisplayMetrics;
 import android.view.View;
 import android.view.Window;
+import android.view.animation.AccelerateDecelerateInterpolator;
 import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
-import android.view.animation.DecelerateInterpolator;
 import android.view.animation.OvershootInterpolator;
 import android.view.animation.TranslateAnimation;
 import android.widget.Button;
@@ -211,12 +211,12 @@ public class MainActivity extends Activity {
         defText.setVisibility(View.GONE);
         defText.setAnimation(out);
         TranslateAnimation translation;
-        translation = new TranslateAnimation(0f, 0f, (getDisplayHeight() - getDisplayHeight() / 2), 0f);
-        translation.setStartOffset(0);
+            translation = new TranslateAnimation(0f, 0f, -getDisplayHeight() / 2, 0f);
+            translation.setStartOffset(0);
         translation.setDuration(300);
         translation.setFillAfter(true);
-        translation.setInterpolator(new DecelerateInterpolator());
-        findViewById(R.id.textView).startAnimation(translation);
+            translation.setInterpolator(new AccelerateDecelerateInterpolator());
+            findViewById(R.id.textView).startAnimation(translation);
         shownDef = false;
         }
     }
@@ -228,8 +228,8 @@ public class MainActivity extends Activity {
         findViewById(R.id.textView).clearAnimation();
         defText.setVisibility(View.VISIBLE);
         TranslateAnimation translation;
-        translation = new TranslateAnimation(0f, 0F, 0f, (getDisplayHeight() - getDisplayHeight() / 2));
-        translation.setStartOffset(0);
+            translation = new TranslateAnimation(0f, 0F, 0f, -getDisplayHeight() / 2);
+            translation.setStartOffset(0);
         translation.setDuration(400);
         translation.setFillAfter(true);
         translation.setInterpolator(new OvershootInterpolator());
