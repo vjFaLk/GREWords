@@ -11,6 +11,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.List;
 import java.util.Random;
 
 public class DataBaseHelper extends SQLiteOpenHelper {
@@ -29,30 +30,30 @@ public class DataBaseHelper extends SQLiteOpenHelper {
      * Takes and keeps a reference of the passed context in order to access to the application assets and resources.
      */
 
-    static int wordID;
+    static String word = "";
+    int wordID;
 
     public String getWord()
     {
         Random rand = new Random();
-        String word = "";
 
-        // nextInt is normally exclusive of the top value,
-        // so add 1 to make it inclusive
-        int randomNum = rand.nextInt((4814 - 1) + 1) + 1;
-
-        String query = "SELECT word FROM word_list WHERE visit_count = 0 ORDER BY random()";
+        String query = "SELECT _id, word FROM word_list WHERE visit_count = 0 ORDER BY random()";
 
         // 2. get reference to writable DB
         SQLiteDatabase db = this.getWritableDatabase();
         Cursor cursor = db.rawQuery(query, null);
         if (cursor != null)
             cursor.moveToFirst();
-        word = cursor.getString(0);
-        wordID = randomNum;
-
+        wordID = Integer.parseInt(cursor.getString(0));
+        word = cursor.getString(1);
         close();
         return word;
     }
+
+    public int getWordID() {
+        return wordID;
+    }
+
 
     public String getDefinition()
         {
@@ -71,10 +72,14 @@ public class DataBaseHelper extends SQLiteOpenHelper {
         return meaning;
         }
 
-    public void setWordAsRead(String word) {
-        String query = "UPDATE word_list SET visit_count = 1 WHERE word=" + "'" + word + "'";
+
+    public void setWordsAsRead(List<Integer> words) {
         SQLiteDatabase db = this.getWritableDatabase();
-        db.execSQL(query);
+        String query;
+        for (int item : words) {
+            query = "UPDATE word_list SET visit_count = 1 WHERE _id=" + item;
+            db.execSQL(query);
+        }
 
     }
 

@@ -34,7 +34,7 @@
         android:background="@drawable/action_prev_item"
         android:layout_above="@+id/textView"
         android:layout_marginBottom="56dp"
-        android:layout_centerHorizontal="true"/>
+        android:layout_centerHorizontal="true" />
 
     <Button
         android:layout_width="wrap_content"
@@ -63,20 +63,19 @@
         android:layout_height="35dp"
         android:id="@+id/NightButton"
         android:background="@drawable/ic_action_brightness_high"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentTop="true"
-        android:layout_marginTop="15dp"
-        android:layout_marginLeft="15dp" />
+        android:layout_toLeftOf="@+id/resetButton"
+        android:layout_marginRight="20dp"
+        android:layout_marginTop="15dp" />
 
     <Button
         style="?android:attr/buttonStyleSmall"
         android:layout_width="35dp"
         android:layout_height="35dp"
         android:id="@+id/resetButton"
-        android:layout_marginTop="15dp"
-        android:layout_alignParentTop="true"
-        android:layout_centerHorizontal="true"
-        android:background="@drawable/ic_action_refresh" />
+        android:background="@drawable/ic_action_refresh"
+        android:layout_alignTop="@+id/NightButton"
+        android:layout_toLeftOf="@+id/TTSButton"
+        android:layout_marginRight="20dp" />
 
     <Button
         android:layout_width="wrap_content"

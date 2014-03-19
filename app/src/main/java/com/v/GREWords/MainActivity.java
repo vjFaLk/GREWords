@@ -3,6 +3,7 @@ package com.v.GREWords;
 import android.animation.ArgbEvaluator;
 import android.animation.ObjectAnimator;
 import android.app.Activity;
+import android.content.res.Configuration;
 import android.database.SQLException;
 import android.graphics.Color;
 import android.os.Bundle;
@@ -31,10 +32,11 @@ public class MainActivity extends Activity {
     String definition = "", word = "";
     TextView mainText, defText;
     int currentIndex = -1;
-    Button prevButt, nextButt, TTSButt, nightModeButt, resetButt;
+    Button prevButt, nextButt, TTSButt, nightModeButt, resetButt, invisbleButt;
     boolean shownDef = false, shownFade = false, isNightMode = false, defChecked = false;
     TextToSpeech TTSObj;
     List wordList = new ArrayList();
+    List wordIDList = new ArrayList();
     List defList = new ArrayList();
     DataBaseHelper data = new DataBaseHelper(this);
 
@@ -43,7 +45,11 @@ public class MainActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         this.requestWindowFeature(Window.FEATURE_NO_TITLE);
-        setContentView(R.layout.activity_main);
+        if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT)
+            setContentView(R.layout.activity_main);
+        else
+            setContentView(R.layout.activity_main_landscape);
+
         Initialize();
         setActionListeners();
         newWord();
@@ -60,6 +66,7 @@ public class MainActivity extends Activity {
         TTSButt = (Button) findViewById(R.id.TTSButton);
         resetButt = (Button) findViewById(R.id.resetButton);
         nightModeButt = (Button) findViewById(R.id.NightButton);
+        invisbleButt = (Button) findViewById(R.id.invisibleButton);
         prevButt.setVisibility(View.GONE);
 
     }
@@ -97,6 +104,14 @@ public class MainActivity extends Activity {
                 }
 
 
+            }
+        });
+
+        invisbleButt.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (shownDef)
+                    hideDefinition();
             }
         });
 
@@ -152,10 +167,6 @@ public class MainActivity extends Activity {
                 else
                     newWord();
 
-                if (!defChecked) {
-                    data.setWordAsRead(word);
-                }
-
                 defChecked = false;
 
 
@@ -194,8 +205,9 @@ public class MainActivity extends Activity {
     }
 
     private void hideDefinition() {
-        Animation out = new AlphaAnimation(1.0f, 0.0f);
-        out.setDuration(300);
+        if (shownDef) {
+            Animation out = new AlphaAnimation(1.0f, 0.0f);
+            out.setDuration(300);
         defText.setVisibility(View.GONE);
         defText.setAnimation(out);
         TranslateAnimation translation;
@@ -206,12 +218,13 @@ public class MainActivity extends Activity {
         translation.setInterpolator(new DecelerateInterpolator());
         findViewById(R.id.textView).startAnimation(translation);
         shownDef = false;
+        }
     }
 
     private void showDefinition() {
-
-        Animation in = new AlphaAnimation(0.0f, 1.0f);
-        in.setDuration(300);
+        if (!shownDef) {
+            Animation in = new AlphaAnimation(0.0f, 1.0f);
+            in.setDuration(300);
         findViewById(R.id.textView).clearAnimation();
         defText.setVisibility(View.VISIBLE);
         TranslateAnimation translation;
@@ -224,6 +237,7 @@ public class MainActivity extends Activity {
         defText.setText(definition);
         defText.startAnimation(in);
         shownDef = true;
+        }
 
     }
 
@@ -241,7 +255,7 @@ public class MainActivity extends Activity {
 
     }
 
-    private boolean checkStack() {
+    private boolean checkList() {
         Animation out = new AlphaAnimation(1.0f, 0.0f);
         out.setDuration(200);
 
@@ -252,6 +266,13 @@ public class MainActivity extends Activity {
             return false;
         }
         return true;
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        data.setWordsAsRead(wordIDList);
+
     }
 
     private void goBack() {
@@ -265,7 +286,7 @@ public class MainActivity extends Activity {
         mainText.setAnimation(in);
         definition = defList.get(currentIndex).toString();
         shownDef = false;
-        checkStack();
+        checkList();
 
     }
 
@@ -296,7 +317,9 @@ public class MainActivity extends Activity {
         }
 
         wordList.add(word);
+        wordIDList.add(data.getWordID());
         defList.add(definition);
+
 
         currentIndex++;
 
