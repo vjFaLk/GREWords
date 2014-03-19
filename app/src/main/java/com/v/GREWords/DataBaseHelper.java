@@ -40,7 +40,7 @@ public class DataBaseHelper extends SQLiteOpenHelper {
         // so add 1 to make it inclusive
         int randomNum = rand.nextInt((4814 - 1) + 1) + 1;
 
-        String query = "SELECT word FROM word_list WHERE _id="+randomNum;
+        String query = "SELECT word FROM word_list WHERE visit_count = 0 ORDER BY random()";
 
         // 2. get reference to writable DB
         SQLiteDatabase db = this.getWritableDatabase();
@@ -69,6 +69,34 @@ public class DataBaseHelper extends SQLiteOpenHelper {
         meaning = cursor.getString(0);
         close();
         return meaning;
+        }
+
+    public void setWordAsRead(String word) {
+        String query = "UPDATE word_list SET visit_count = 1 WHERE word=" + "'" + word + "'";
+        SQLiteDatabase db = this.getWritableDatabase();
+        db.execSQL(query);
+
+    }
+
+    public void resetAllRead() {
+        String query = "UPDATE word_list SET visit_count = 0 WHERE visit_count = 1";
+        SQLiteDatabase db = this.getWritableDatabase();
+        db.execSQL(query);
+    }
+
+    public void test() {
+        String query = "SELECT word FROM word_list WHERE visit_count = 1";
+        SQLiteDatabase db = this.getWritableDatabase();
+        Cursor cursor = db.rawQuery(query, null);
+        if (cursor != null)
+            cursor.moveToFirst();
+
+        for (int i = 0; i < 10; i++) {
+            System.out.println(cursor.getString(0));
+            cursor.moveToNext();
+        }
+
+
     }
 
 

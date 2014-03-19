@@ -48,8 +48,8 @@
         />
 
     <Button
-        android:layout_width="30dp"
-        android:layout_height="30dp"
+        android:layout_width="35dp"
+        android:layout_height="35dp"
         android:id="@+id/TTSButton"
         android:background="@drawable/ic_action_volume_on"
         android:layout_alignParentTop="true"
@@ -58,7 +58,7 @@
         android:layout_marginRight="15dp" />
 
     <Button
-        style="?android:attr/buttonStyleSmall"
+
         android:layout_width="35dp"
         android:layout_height="35dp"
         android:id="@+id/NightButton"
@@ -67,6 +67,16 @@
         android:layout_alignParentTop="true"
         android:layout_marginTop="15dp"
         android:layout_marginLeft="15dp" />
+
+    <Button
+        style="?android:attr/buttonStyleSmall"
+        android:layout_width="35dp"
+        android:layout_height="35dp"
+        android:id="@+id/resetButton"
+        android:layout_marginTop="15dp"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:background="@drawable/ic_action_refresh" />
 
 
 </RelativeLayout>

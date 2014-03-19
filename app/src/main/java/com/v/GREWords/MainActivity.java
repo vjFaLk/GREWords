@@ -13,10 +13,12 @@ import android.view.Window;
 import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
 import android.view.animation.DecelerateInterpolator;
+import android.view.animation.OvershootInterpolator;
 import android.view.animation.TranslateAnimation;
 import android.widget.Button;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -29,11 +31,12 @@ public class MainActivity extends Activity {
     String definition = "", word = "";
     TextView mainText, defText;
     int currentIndex = -1;
-    Button prevButt, nextButt, TTSButt, nightModeButt;
-    boolean shownDef = false, shownFade = false, isNightMode = false;
+    Button prevButt, nextButt, TTSButt, nightModeButt, resetButt;
+    boolean shownDef = false, shownFade = false, isNightMode = false, defChecked = false;
     TextToSpeech TTSObj;
     List wordList = new ArrayList();
     List defList = new ArrayList();
+    DataBaseHelper data = new DataBaseHelper(this);
 
 
     @Override
@@ -55,6 +58,7 @@ public class MainActivity extends Activity {
         prevButt = (Button) findViewById(R.id.buttonPrev);
         nextButt = (Button) findViewById(R.id.buttonNext);
         TTSButt = (Button) findViewById(R.id.TTSButton);
+        resetButt = (Button) findViewById(R.id.resetButton);
         nightModeButt = (Button) findViewById(R.id.NightButton);
         prevButt.setVisibility(View.GONE);
 
@@ -67,7 +71,7 @@ public class MainActivity extends Activity {
             public void onClick(View view) {
                 RelativeLayout lay = (RelativeLayout) findViewById(R.id.container);
                 ObjectAnimator colorFade = ObjectAnimator.ofObject(lay, "backgroundColor", new ArgbEvaluator(), Color.argb(211, 211, 211, 211), 0xff000000);
-                colorFade.setDuration(1000);
+                colorFade.setDuration(500);
 
                 if (!isNightMode) {
                     colorFade.start();
@@ -77,6 +81,7 @@ public class MainActivity extends Activity {
                     nextButt.setBackgroundResource(R.drawable.n_ic_action_next_item);
                     nightModeButt.setBackgroundResource(R.drawable.n_ic_action_brightness_high);
                     TTSButt.setBackgroundResource(R.drawable.n_ic_action_volume_on);
+                    resetButt.setBackgroundResource(R.drawable.n_ic_action_refresh);
 
                     isNightMode = true;
                 } else {
@@ -87,10 +92,21 @@ public class MainActivity extends Activity {
                     nextButt.setBackgroundResource(R.drawable.action_next_item);
                     nightModeButt.setBackgroundResource(R.drawable.ic_action_brightness_high);
                     TTSButt.setBackgroundResource(R.drawable.ic_action_volume_on);
+                    resetButt.setBackgroundResource(R.drawable.ic_action_refresh);
                     isNightMode = false;
                 }
 
 
+            }
+        });
+
+        resetButt.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                data.resetAllRead();
+
+                Toast toast = Toast.makeText(getApplicationContext(), "Stats Reset", Toast.LENGTH_SHORT);
+                toast.show();
             }
         });
 
@@ -136,6 +152,12 @@ public class MainActivity extends Activity {
                 else
                     newWord();
 
+                if (!defChecked) {
+                    data.setWordAsRead(word);
+                }
+
+                defChecked = false;
+
 
             }
         });
@@ -157,8 +179,13 @@ public class MainActivity extends Activity {
                     showDefinition();
                 else
                     hideDefinition();
+
+                defChecked = true;
+
+
             }
         });
+
 
     }
 
@@ -174,7 +201,7 @@ public class MainActivity extends Activity {
         TranslateAnimation translation;
         translation = new TranslateAnimation(0f, 0f, (getDisplayHeight() - getDisplayHeight() / 2), 0f);
         translation.setStartOffset(0);
-        translation.setDuration(400);
+        translation.setDuration(300);
         translation.setFillAfter(true);
         translation.setInterpolator(new DecelerateInterpolator());
         findViewById(R.id.textView).startAnimation(translation);
@@ -192,9 +219,8 @@ public class MainActivity extends Activity {
         translation.setStartOffset(0);
         translation.setDuration(400);
         translation.setFillAfter(true);
-        translation.setInterpolator(new DecelerateInterpolator());
+        translation.setInterpolator(new OvershootInterpolator());
         findViewById(R.id.textView).startAnimation(translation);
-
         defText.setText(definition);
         defText.startAnimation(in);
         shownDef = true;
@@ -235,6 +261,7 @@ public class MainActivity extends Activity {
         findViewById(R.id.textView).clearAnimation();
         defText.setText(" ");
         mainText.setText(wordList.get(currentIndex).toString());
+        word = mainText.getText().toString();
         mainText.setAnimation(in);
         definition = defList.get(currentIndex).toString();
         shownDef = false;
@@ -245,8 +272,7 @@ public class MainActivity extends Activity {
 
     private void newWord() {
 
-        DataBaseHelper data;
-        data = new DataBaseHelper(this);
+
         Animation in = new AlphaAnimation(0.0f, 1.0f);
         in.setDuration(500);
 
