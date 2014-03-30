@@ -12,7 +12,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.List;
-import java.util.Random;
 
 public class DataBaseHelper extends SQLiteOpenHelper {
 
@@ -31,11 +30,10 @@ public class DataBaseHelper extends SQLiteOpenHelper {
      */
 
     static String word = "";
-    int wordID;
+    int wordID = 1;
 
     public String getWord()
     {
-        Random rand = new Random();
 
         String query = "SELECT _id, word FROM word_list WHERE visit_count = 0 ORDER BY random()";
 
@@ -47,6 +45,20 @@ public class DataBaseHelper extends SQLiteOpenHelper {
         wordID = Integer.parseInt(cursor.getString(0));
         word = cursor.getString(1);
         close();
+        return word;
+    }
+
+    public String getWordInOrder() {
+        String query = "SELECT word FROM word_list WHERE _id=" + wordID;
+
+        // 2. get reference to writable DB
+        SQLiteDatabase db = this.getWritableDatabase();
+        Cursor cursor = db.rawQuery(query, null);
+        if (cursor != null)
+            cursor.moveToFirst();
+        word = cursor.getString(0);
+        close();
+        wordID++;
         return word;
     }
 

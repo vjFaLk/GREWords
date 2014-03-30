@@ -3,6 +3,7 @@ package com.v.GREWords;
 import android.animation.ArgbEvaluator;
 import android.animation.ObjectAnimator;
 import android.app.Activity;
+import android.content.Intent;
 import android.content.res.Configuration;
 import android.database.SQLException;
 import android.graphics.Color;
@@ -32,7 +33,7 @@ public class MainActivity extends Activity {
     String definition = "", word = "";
     TextView mainText, defText;
     int currentIndex = -1;
-    Button prevButt, nextButt, TTSButt, nightModeButt, resetButt, invisbleButt;
+    Button prevButt, nextButt, TTSButt, nightModeButt, resetButt, invisbleButt, listButt;
     boolean shownDef = false, shownFade = false, isNightMode = false, defChecked = false;
     TextToSpeech TTSObj;
     List wordList = new ArrayList();
@@ -67,6 +68,7 @@ public class MainActivity extends Activity {
         resetButt = (Button) findViewById(R.id.resetButton);
         nightModeButt = (Button) findViewById(R.id.NightButton);
         invisbleButt = (Button) findViewById(R.id.invisibleButton);
+        listButt = (Button) findViewById(R.id.listButton);
         prevButt.setVisibility(View.GONE);
 
     }
@@ -112,6 +114,14 @@ public class MainActivity extends Activity {
             public void onClick(View view) {
                 if (shownDef)
                     hideDefinition();
+            }
+        });
+
+        listButt.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent myIntent = new Intent(MainActivity.this, FullList.class);
+                MainActivity.this.startActivity(myIntent);
             }
         });
 
