@@ -2,6 +2,7 @@ package com.v.GREWords;
 
 import android.app.Activity;
 import android.os.Bundle;
+import android.widget.AbsListView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
@@ -24,6 +25,18 @@ public class FullList extends Activity {
         populateList();
         list.setAdapter(adapter);
         list.setTextFilterEnabled(true);
+        list.setOnScrollListener(new AbsListView.OnScrollListener() {
+            @Override
+            public void onScrollStateChanged(AbsListView absListView, int i) {
+                if (i == SCROLL_STATE_FLING)
+                    populateList();
+            }
+
+            @Override
+            public void onScroll(AbsListView absListView, int i, int i2, int i3) {
+
+            }
+        });
 
     }
 
