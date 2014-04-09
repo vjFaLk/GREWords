@@ -11,6 +11,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.ArrayList;
 import java.util.List;
 
 public class DataBaseHelper extends SQLiteOpenHelper {
@@ -18,7 +19,7 @@ public class DataBaseHelper extends SQLiteOpenHelper {
     //The Android's default system path of your application database.
     private static String DB_PATH = "/data/data/com.v.GREWords/databases/";
 
-    private static String DB_NAME = "gredict";
+    private static String DB_NAME = "gredict.db";
 
     private SQLiteDatabase myDataBase;
 
@@ -32,8 +33,7 @@ public class DataBaseHelper extends SQLiteOpenHelper {
     static String word = "";
     int wordID = 1;
 
-    public String getWord()
-    {
+    public String getWord() {
 
         String query = "SELECT _id, word FROM word_list WHERE visit_count = 0 ORDER BY random()";
 
@@ -62,17 +62,35 @@ public class DataBaseHelper extends SQLiteOpenHelper {
         return word;
     }
 
+    public List<String> getWordByAlphabet(String letter) {
+        String query = "SELECT word FROM word_list WHERE word LIKE 'a%'";
+
+        List<String> wordList = new ArrayList<String>();
+        // 2. get reference to writable DB
+        SQLiteDatabase db = this.getWritableDatabase();
+        Cursor cursor = db.rawQuery(query, null);
+        if (cursor != null)
+            cursor.moveToFirst();
+
+        while (!cursor.isLast()) {
+            wordList.add(cursor.getString(0));
+            cursor.moveToNext();
+        }
+        close();
+        return wordList;
+
+    }
+
     public int getWordID() {
         return wordID;
     }
 
 
-    public String getDefinition()
-        {
+    public String getDefinition() {
 
 
         String meaning = "";
-        String query = "SELECT meaning FROM word_list WHERE _id="+wordID;
+        String query = "SELECT meaning FROM word_list WHERE _id=" + wordID;
 
         // 2. get reference to writable DB
         SQLiteDatabase db = this.getWritableDatabase();
@@ -82,7 +100,7 @@ public class DataBaseHelper extends SQLiteOpenHelper {
         meaning = cursor.getString(0);
         close();
         return meaning;
-        }
+    }
 
 
     public void setWordsAsRead(List<Integer> words) {
@@ -92,6 +110,7 @@ public class DataBaseHelper extends SQLiteOpenHelper {
             query = "UPDATE word_list SET visit_count = 1 WHERE _id=" + item;
             db.execSQL(query);
         }
+        close();
 
     }
 
@@ -117,9 +136,6 @@ public class DataBaseHelper extends SQLiteOpenHelper {
     }
 
 
-
-
-
     public DataBaseHelper(Context context) {
 
         super(context, DB_NAME, null, 1);
@@ -128,14 +144,14 @@ public class DataBaseHelper extends SQLiteOpenHelper {
 
     /**
      * Creates a empty database on the system and rewrites it with your own database.
-     * */
+     */
     public void createDataBase() throws IOException {
 
         boolean dbExist = checkDataBase();
 
-        if(dbExist){
+        if (dbExist) {
             //do nothing - database already exist
-        }else{
+        } else {
 
             //By calling this method and empty database will be created into the default system path
             //of your application so we are gonna be able to overwrite that database with our database.
@@ -156,23 +172,24 @@ public class DataBaseHelper extends SQLiteOpenHelper {
 
     /**
      * Check if the database already exist to avoid re-copying the file each time you open the application.
+     *
      * @return true if it exists, false if it doesn't
      */
-    private boolean checkDataBase(){
+    private boolean checkDataBase() {
 
         SQLiteDatabase checkDB = null;
 
-        try{
+        try {
             String myPath = DB_PATH + DB_NAME;
             checkDB = SQLiteDatabase.openDatabase(myPath, null, SQLiteDatabase.OPEN_READONLY);
 
-        }catch(SQLiteException e){
+        } catch (SQLiteException e) {
 
             //database does't exist yet.
 
         }
 
-        if(checkDB != null){
+        if (checkDB != null) {
 
             checkDB.close();
 
@@ -185,8 +202,8 @@ public class DataBaseHelper extends SQLiteOpenHelper {
      * Copies your database from your local assets-folder to the just created empty database in the
      * system folder, from where it can be accessed and handled.
      * This is done by transfering bytestream.
-     * */
-    private void copyDataBase() throws IOException{
+     */
+    private void copyDataBase() throws IOException {
 
         //Open your local db as the input stream
         InputStream myInput = myContext.getAssets().open(DB_NAME);
@@ -200,7 +217,7 @@ public class DataBaseHelper extends SQLiteOpenHelper {
         //transfer bytes from the inputfile to the outputfile
         byte[] buffer = new byte[1024];
         int length;
-        while ((length = myInput.read(buffer))>0){
+        while ((length = myInput.read(buffer)) > 0) {
             myOutput.write(buffer, 0, length);
         }
 
@@ -222,7 +239,7 @@ public class DataBaseHelper extends SQLiteOpenHelper {
     @Override
     public synchronized void close() {
 
-        if(myDataBase != null)
+        if (myDataBase != null)
             myDataBase.close();
 
         super.close();

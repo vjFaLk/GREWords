@@ -12,5 +12,6 @@
     <string name="navigation_drawer_close">Close navigation drawer</string>
     <string name="action_example">Example action</string>
     <string name="title_activity_full_list">FullList</string>
+    <string name="title_activity_segregated_list">segregatedList</string>
 
 </resources>

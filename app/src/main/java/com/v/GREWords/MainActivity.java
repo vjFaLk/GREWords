@@ -5,7 +5,6 @@ import android.animation.ObjectAnimator;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.res.Configuration;
-import android.database.SQLException;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.speech.tts.TextToSpeech;
@@ -120,7 +119,7 @@ public class MainActivity extends Activity {
         listButt.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent myIntent = new Intent(MainActivity.this, FullList.class);
+                Intent myIntent = new Intent(MainActivity.this, segregatedList.class);
                 MainActivity.this.startActivity(myIntent);
             }
         });
@@ -196,7 +195,7 @@ public class MainActivity extends Activity {
         mainText.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (shownDef == false)
+                if (!shownDef)
                     showDefinition();
                 else
                     hideDefinition();
@@ -218,16 +217,16 @@ public class MainActivity extends Activity {
         if (shownDef) {
             Animation out = new AlphaAnimation(1.0f, 0.0f);
             out.setDuration(300);
-        defText.setVisibility(View.GONE);
-        defText.setAnimation(out);
-        TranslateAnimation translation;
+            defText.setVisibility(View.GONE);
+            defText.setAnimation(out);
+            TranslateAnimation translation;
             translation = new TranslateAnimation(0f, 0f, -getDisplayHeight() / 2, 0f);
             translation.setStartOffset(0);
-        translation.setDuration(300);
-        translation.setFillAfter(true);
+            translation.setDuration(300);
+            translation.setFillAfter(true);
             translation.setInterpolator(new AccelerateDecelerateInterpolator());
             findViewById(R.id.textView).startAnimation(translation);
-        shownDef = false;
+            shownDef = false;
         }
     }
 
@@ -235,18 +234,18 @@ public class MainActivity extends Activity {
         if (!shownDef) {
             Animation in = new AlphaAnimation(0.0f, 1.0f);
             in.setDuration(300);
-        findViewById(R.id.textView).clearAnimation();
-        defText.setVisibility(View.VISIBLE);
-        TranslateAnimation translation;
+            findViewById(R.id.textView).clearAnimation();
+            defText.setVisibility(View.VISIBLE);
+            TranslateAnimation translation;
             translation = new TranslateAnimation(0f, 0F, 0f, -getDisplayHeight() / 2);
             translation.setStartOffset(0);
-        translation.setDuration(400);
-        translation.setFillAfter(true);
-        translation.setInterpolator(new OvershootInterpolator());
-        findViewById(R.id.textView).startAnimation(translation);
-        defText.setText(definition);
-        defText.startAnimation(in);
-        shownDef = true;
+            translation.setDuration(400);
+            translation.setFillAfter(true);
+            translation.setInterpolator(new OvershootInterpolator());
+            findViewById(R.id.textView).startAnimation(translation);
+            defText.setText(definition);
+            defText.startAnimation(in);
+            shownDef = true;
         }
 
     }
@@ -314,17 +313,11 @@ public class MainActivity extends Activity {
             throw new Error("Unable to create database");
         }
 
-        try {
-
-            data.openDataBase();
-            word = data.getWord();
-            mainText.setText(word);
-            mainText.setAnimation(in);
-            definition = data.getDefinition();
-        } catch (SQLException sqle) {
-
-            throw sqle;
-        }
+        data.openDataBase();
+        word = data.getWord();
+        mainText.setText(word);
+        mainText.setAnimation(in);
+        definition = data.getDefinition();
 
         wordList.add(word);
         wordIDList.add(data.getWordID());
