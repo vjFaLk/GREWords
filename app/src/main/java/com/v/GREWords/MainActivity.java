@@ -16,8 +16,12 @@ import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
 import android.view.animation.OvershootInterpolator;
 import android.view.animation.TranslateAnimation;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.ListView;
 import android.widget.RelativeLayout;
+import android.widget.SearchView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -33,13 +37,16 @@ public class MainActivity extends Activity {
     TextView mainText, defText;
     int currentIndex = -1;
     Button prevButt, nextButt, TTSButt, nightModeButt, resetButt, invisbleButt;
-    boolean shownDef = false, shownFade = false, isNightMode = false, defChecked = false;
+    boolean shownDef = false, shownFade = false, isNightMode = false, defChecked = false, isSearchOpen = false;
     TextToSpeech TTSObj;
     List wordList = new ArrayList();
     List wordIDList = new ArrayList();
     List defList = new ArrayList();
     DataBaseHelper data = new DataBaseHelper(this);
-
+    ArrayList<String> listItems;
+    ArrayAdapter<String> adapter;
+    SearchView search;
+    ListView list;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,13 +59,18 @@ public class MainActivity extends Activity {
 
         Initialize();
         setActionListeners();
-        newWord();
+        getWord();
 
 
+        listItems = new ArrayList<String>();
+        adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, listItems);
+        list.setAdapter(adapter);
+        list.setTextFilterEnabled(true);
     }
 
 
     private void Initialize() {
+        list = (ListView) findViewById(R.id.listView);
         defText = (TextView) findViewById(R.id.textView2);
         mainText = (TextView) findViewById(R.id.textView);
         prevButt = (Button) findViewById(R.id.buttonPrev);
@@ -67,43 +79,67 @@ public class MainActivity extends Activity {
         resetButt = (Button) findViewById(R.id.resetButton);
         nightModeButt = (Button) findViewById(R.id.NightButton);
         invisbleButt = (Button) findViewById(R.id.invisibleButton);
+        search = (SearchView) findViewById(R.id.searchView);
         prevButt.setVisibility(View.GONE);
+        list.setVisibility(View.GONE);
+        
 
     }
 
+
     private void setActionListeners() {
+
+
+        search.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+
+
+            @Override
+            public boolean onQueryTextSubmit(String s) {
+
+                return true;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String s) {
+                list.setVisibility(View.VISIBLE);
+                isSearchOpen = true;
+                listItems.clear();
+                if (!s.isEmpty()) {
+                    listItems.addAll(data.getWordListForSearch(search.getQuery().toString()));
+                } else {
+                    listItems.clear();
+                }
+                adapter.notifyDataSetChanged();
+                return false;
+            }
+        });
+
+        search.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (!isSearchOpen)
+                    list.setVisibility(View.VISIBLE);
+                isSearchOpen = true;
+            }
+        });
+
+
+        list.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                String word = ((TextView) view).getText().toString();
+                mainText.setText(word);
+                definition = data.getDefinitionforWord(word);
+
+            }
+        });
+
 
         nightModeButt.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                RelativeLayout lay = (RelativeLayout) findViewById(R.id.container);
-                ObjectAnimator colorFade = ObjectAnimator.ofObject(lay, "backgroundColor", new ArgbEvaluator(), Color.argb(211, 211, 211, 211), 0xff000000);
-                colorFade.setDuration(500);
 
-                if (!isNightMode) {
-                    colorFade.start();
-                    mainText.setTextColor(Color.LTGRAY);
-                    defText.setTextColor(Color.LTGRAY);
-                    prevButt.setBackgroundResource(R.drawable.n_ic_action_prev_item);
-                    nextButt.setBackgroundResource(R.drawable.n_ic_action_next_item);
-                    nightModeButt.setBackgroundResource(R.drawable.n_ic_action_brightness_high);
-                    TTSButt.setBackgroundResource(R.drawable.n_ic_action_volume_on);
-                    resetButt.setBackgroundResource(R.drawable.n_ic_action_refresh);
-
-                    isNightMode = true;
-                } else {
-                    colorFade.reverse();
-                    mainText.setTextColor(Color.BLACK);
-                    defText.setTextColor(Color.BLACK);
-                    prevButt.setBackgroundResource(R.drawable.action_prev_item);
-                    nextButt.setBackgroundResource(R.drawable.action_next_item);
-                    nightModeButt.setBackgroundResource(R.drawable.ic_action_brightness_high);
-                    TTSButt.setBackgroundResource(R.drawable.ic_action_volume_on);
-                    resetButt.setBackgroundResource(R.drawable.ic_action_refresh);
-                    isNightMode = false;
-                }
-
-
+                toggleNightMode();
             }
         });
 
@@ -138,7 +174,7 @@ public class MainActivity extends Activity {
         TTSButt.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                PronounceWord();
+                pronounceWord();
             }
         });
 
@@ -165,7 +201,7 @@ public class MainActivity extends Activity {
                 if (((wordList.size()) - 1) > currentIndex)
                     getWordFromList();
                 else
-                    newWord();
+                    getWord();
 
                 defChecked = false;
 
@@ -200,46 +236,81 @@ public class MainActivity extends Activity {
 
     }
 
-    private void PronounceWord() {
+
+    private void toggleNightMode() {
+        RelativeLayout lay = (RelativeLayout) findViewById(R.id.container);
+        ObjectAnimator colorFade = ObjectAnimator.ofObject(lay, "backgroundColor", new ArgbEvaluator(), Color.argb(211, 211, 211, 211), 0xff000000);
+        colorFade.setDuration(500);
+
+        if (!isNightMode) {
+            colorFade.start();
+            mainText.setTextColor(Color.LTGRAY);
+            defText.setTextColor(Color.LTGRAY);
+            prevButt.setBackgroundResource(R.drawable.n_ic_action_prev_item);
+            nextButt.setBackgroundResource(R.drawable.n_ic_action_next_item);
+            nightModeButt.setBackgroundResource(R.drawable.n_ic_action_brightness_high);
+            TTSButt.setBackgroundResource(R.drawable.n_ic_action_volume_on);
+            resetButt.setBackgroundResource(R.drawable.n_ic_action_refresh);
+
+            isNightMode = true;
+        } else {
+            colorFade.reverse();
+            mainText.setTextColor(Color.BLACK);
+            defText.setTextColor(Color.BLACK);
+            prevButt.setBackgroundResource(R.drawable.action_prev_item);
+            nextButt.setBackgroundResource(R.drawable.action_next_item);
+            nightModeButt.setBackgroundResource(R.drawable.ic_action_brightness_high);
+            TTSButt.setBackgroundResource(R.drawable.ic_action_volume_on);
+            resetButt.setBackgroundResource(R.drawable.ic_action_refresh);
+            isNightMode = false;
+        }
+
+    }
+
+
+    private void pronounceWord() {
         TTSObj.speak(word, TextToSpeech.QUEUE_FLUSH, null);
     }
+
 
     private void hideDefinition() {
         if (shownDef) {
             Animation out = new AlphaAnimation(1.0f, 0.0f);
             out.setDuration(300);
-        defText.setVisibility(View.GONE);
-        defText.setAnimation(out);
-        TranslateAnimation translation;
+            defText.setVisibility(View.GONE);
+            defText.setAnimation(out);
+            TranslateAnimation translation;
             translation = new TranslateAnimation(0f, 0f, -getDisplayHeight() / 2, 0f);
             translation.setStartOffset(0);
-        translation.setDuration(300);
-        translation.setFillAfter(true);
+            translation.setDuration(300);
+            translation.setFillAfter(true);
             translation.setInterpolator(new AccelerateDecelerateInterpolator());
             findViewById(R.id.textView).startAnimation(translation);
-        shownDef = false;
+            shownDef = false;
         }
     }
+
 
     private void showDefinition() {
         if (!shownDef) {
             Animation in = new AlphaAnimation(0.0f, 1.0f);
             in.setDuration(300);
-        findViewById(R.id.textView).clearAnimation();
-        defText.setVisibility(View.VISIBLE);
-        TranslateAnimation translation;
+            findViewById(R.id.textView).clearAnimation();
+            defText.setVisibility(View.VISIBLE);
+            TranslateAnimation translation;
             translation = new TranslateAnimation(0f, 0F, 0f, -getDisplayHeight() / 2);
             translation.setStartOffset(0);
-        translation.setDuration(400);
-        translation.setFillAfter(true);
-        translation.setInterpolator(new OvershootInterpolator());
-        findViewById(R.id.textView).startAnimation(translation);
-        defText.setText(definition);
-        defText.startAnimation(in);
-        shownDef = true;
+            translation.setDuration(400);
+            translation.setFillAfter(true);
+            translation.setInterpolator(new OvershootInterpolator());
+            findViewById(R.id.textView).startAnimation(translation);
+            defText.setText(definition);
+            defText.startAnimation(in);
+            shownDef = true;
         }
 
     }
+
 
     private void getWordFromList() {
 
@@ -255,6 +326,7 @@ public class MainActivity extends Activity {
 
     }
 
+
     private boolean checkList() {
         Animation out = new AlphaAnimation(1.0f, 0.0f);
         out.setDuration(200);
@@ -268,12 +340,6 @@ public class MainActivity extends Activity {
         return true;
     }
 
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        data.setWordsAsRead(wordIDList);
-
-    }
 
     private void goBack() {
         currentIndex--;
@@ -291,7 +357,7 @@ public class MainActivity extends Activity {
     }
 
 
-    private void newWord() {
+    private void getWord() {
 
 
         Animation in = new AlphaAnimation(0.0f, 1.0f);
@@ -332,9 +398,13 @@ public class MainActivity extends Activity {
         getWindowManager().getDefaultDisplay().getMetrics(metrics);
         return metrics.widthPixels;
     }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        data.setWordsAsRead(wordIDList);
+
+    }
+
 }
-
-
-
-
 

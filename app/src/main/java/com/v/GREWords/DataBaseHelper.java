@@ -2,6 +2,7 @@ package com.v.GREWords;
 
 import android.content.Context;
 import android.database.Cursor;
+import android.database.CursorIndexOutOfBoundsException;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
@@ -11,8 +12,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
 
 public class DataBaseHelper extends SQLiteOpenHelper {
 
@@ -35,8 +36,6 @@ public class DataBaseHelper extends SQLiteOpenHelper {
 
     public String getWord()
     {
-        Random rand = new Random();
-
         String query = "SELECT _id, word FROM word_list WHERE visit_count = 0 ORDER BY random()";
 
         // 2. get reference to writable DB
@@ -48,6 +47,31 @@ public class DataBaseHelper extends SQLiteOpenHelper {
         word = cursor.getString(1);
         close();
         return word;
+    }
+
+    public ArrayList<String> getWordListForSearch(String letter) {
+        String query = "SELECT word FROM word_list WHERE word LIKE '" + letter + "%' OR word='" + letter + "'";
+        System.out.println(letter);
+        ArrayList<String> wordList = new ArrayList<String>();
+        // 2. get reference to writable DB
+        SQLiteDatabase db = this.getWritableDatabase();
+        Cursor cursor = db.rawQuery(query, null);
+        if (cursor != null)
+            cursor.moveToFirst();
+
+        do {
+            try {
+                wordList.add(cursor.getString(0));
+
+                cursor.moveToNext();
+
+            } catch (CursorIndexOutOfBoundsException e) {
+                break;
+            }
+        } while (!cursor.isLast());
+        close();
+        return wordList;
+
     }
 
     public int getWordID() {
@@ -71,6 +95,23 @@ public class DataBaseHelper extends SQLiteOpenHelper {
         close();
         return meaning;
         }
+
+
+    public String getDefinitionforWord(String word) {
+
+
+        String meaning = "";
+        String query = "SELECT meaning FROM word_list WHERE word='" + word + "'";
+
+        // 2. get reference to writable DB
+        SQLiteDatabase db = this.getWritableDatabase();
+        Cursor cursor = db.rawQuery(query, null);
+        if (cursor != null)
+            cursor.moveToFirst();
+        meaning = cursor.getString(0);
+        close();
+        return meaning;
+    }
 
 
     public void setWordsAsRead(List<Integer> words) {
