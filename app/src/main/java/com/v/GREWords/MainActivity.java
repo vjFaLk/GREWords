@@ -82,7 +82,7 @@ public class MainActivity extends Activity {
         search = (SearchView) findViewById(R.id.searchView);
         prevButt.setVisibility(View.GONE);
         list.setVisibility(View.GONE);
-        
+
 
     }
 
