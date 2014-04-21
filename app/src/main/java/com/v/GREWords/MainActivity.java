@@ -3,6 +3,7 @@ package com.v.GREWords;
 import android.animation.ArgbEvaluator;
 import android.animation.ObjectAnimator;
 import android.app.Activity;
+import android.content.Context;
 import android.content.res.Configuration;
 import android.database.SQLException;
 import android.graphics.Color;
@@ -16,6 +17,7 @@ import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
 import android.view.animation.OvershootInterpolator;
 import android.view.animation.TranslateAnimation;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -24,6 +26,8 @@ import android.widget.RelativeLayout;
 import android.widget.SearchView;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.slidinglayer.SlidingLayer;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -36,17 +40,18 @@ public class MainActivity extends Activity {
     String definition = "", word = "";
     TextView mainText, defText;
     int currentIndex = -1;
-    Button prevButt, nextButt, TTSButt, nightModeButt, resetButt, invisbleButt;
-    boolean shownDef = false, shownFade = false, isNightMode = false, defChecked = false, isSearchOpen = false;
+    Button prevButt, nextButt, TTSButt, nightModeButt, resetButt, invisbleButt, searchButt;
+    boolean shownDef = false, shownFade = false, isNightMode = false, defChecked = false;
     TextToSpeech TTSObj;
     List wordList = new ArrayList();
     List wordIDList = new ArrayList();
     List defList = new ArrayList();
     DataBaseHelper data = new DataBaseHelper(this);
-    ArrayList<String> listItems;
-    ArrayAdapter<String> adapter;
+    ArrayList<String> listItems, listAlphabets;
+    ArrayAdapter<String> adapter, alphaAdapter;
     SearchView search;
-    ListView list;
+    ListView list, alphalist;
+    SlidingLayer slidingLayerRight, slidingLayerLeft;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -60,17 +65,25 @@ public class MainActivity extends Activity {
         Initialize();
         setActionListeners();
         getWord();
+        // populateAlphabets();
 
 
-        listItems = new ArrayList<String>();
         adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, listItems);
         list.setAdapter(adapter);
         list.setTextFilterEnabled(true);
+
+        alphaAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, listAlphabets);
+        alphalist.setAdapter(alphaAdapter);
+        alphalist.setTextFilterEnabled(true);
+
+        alphaAdapter.notifyDataSetChanged();
+
     }
 
 
     private void Initialize() {
         list = (ListView) findViewById(R.id.listView);
+        alphalist = (ListView) findViewById(R.id.alphabetlistView);
         defText = (TextView) findViewById(R.id.textView2);
         mainText = (TextView) findViewById(R.id.textView);
         prevButt = (Button) findViewById(R.id.buttonPrev);
@@ -79,9 +92,37 @@ public class MainActivity extends Activity {
         resetButt = (Button) findViewById(R.id.resetButton);
         nightModeButt = (Button) findViewById(R.id.NightButton);
         invisbleButt = (Button) findViewById(R.id.invisibleButton);
+        searchButt = (Button) findViewById(R.id.searchButton);
         search = (SearchView) findViewById(R.id.searchView);
+        slidingLayerRight = (SlidingLayer) findViewById(R.id.slidingLayer1);
+        slidingLayerRight.setShadowWidthRes(R.dimen.shadow_width);
+        slidingLayerRight.setOffsetWidth(12);
+        slidingLayerRight.setShadowDrawable(R.drawable.sidebar_shadow);
+        slidingLayerRight.setStickTo(SlidingLayer.STICK_TO_RIGHT);
+        slidingLayerRight.setCloseOnTapEnabled(true);
+        slidingLayerLeft = (SlidingLayer) findViewById(R.id.slidingLayer2);
+        slidingLayerLeft.setShadowWidthRes(R.dimen.shadow_width);
+        slidingLayerLeft.setOffsetWidth(12);
+        slidingLayerLeft.setShadowDrawable(R.drawable.sidebar_shadow);
+        slidingLayerLeft.setStickTo(SlidingLayer.STICK_TO_LEFT);
+        slidingLayerLeft.setCloseOnTapEnabled(true);
+        listAlphabets = new ArrayList<String>();
+        listItems = new ArrayList<String>();
         prevButt.setVisibility(View.GONE);
         list.setVisibility(View.GONE);
+        resetButt.setVisibility(View.GONE);
+        slidingLayerLeft.setVisibility(View.GONE);
+
+
+    }
+
+    private void populateAlphabets() {
+        char temp;
+
+        for (int i = 65, j = 0; i <= 91; i++, j++) {
+            temp = (char) i;
+            listAlphabets.add(String.valueOf(temp));
+        }
 
 
     }
@@ -89,6 +130,46 @@ public class MainActivity extends Activity {
 
     private void setActionListeners() {
 
+
+        searchButt.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                slidingLayerRight.openLayer(true);
+
+            }
+        });
+
+        slidingLayerRight.setOnInteractListener(new SlidingLayer.OnInteractListener() {
+
+
+            @Override
+            public void onOpen() {
+
+                if (search.isIconified())
+                    search.setIconified(false);
+
+
+            }
+
+            @Override
+            public void onClose() {
+                InputMethodManager imm = (InputMethodManager) getSystemService(
+                        Context.INPUT_METHOD_SERVICE);
+                imm.hideSoftInputFromWindow(search.getWindowToken(), 0);
+
+            }
+
+            @Override
+            public void onOpened() {
+
+            }
+
+            @Override
+            public void onClosed() {
+
+
+            }
+        });
 
         search.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
 
@@ -102,7 +183,6 @@ public class MainActivity extends Activity {
             @Override
             public boolean onQueryTextChange(String s) {
                 list.setVisibility(View.VISIBLE);
-                isSearchOpen = true;
                 listItems.clear();
                 if (!s.isEmpty()) {
                     listItems.addAll(data.getWordListForSearch(search.getQuery().toString()));
@@ -114,22 +194,25 @@ public class MainActivity extends Activity {
             }
         });
 
-        search.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if (!isSearchOpen)
-                    list.setVisibility(View.VISIBLE);
-                isSearchOpen = true;
-            }
-        });
 
 
         list.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                String word = ((TextView) view).getText().toString();
-                mainText.setText(word);
-                definition = data.getDefinitionforWord(word);
+                Animation in = new AlphaAnimation(0.0f, 1.0f);
+                in.setDuration(200);
+                String tempWord = ((TextView) view).getText().toString();
+                String tempDef = data.getDefinitionforWord(tempWord);
+                mainText.setText(tempWord);
+                mainText.setAnimation(in);
+                definition = tempDef;
+                word = tempWord;
+
+                slidingLayerRight.closeLayer(true);
+
+
+
+
 
             }
         });
@@ -165,7 +248,7 @@ public class MainActivity extends Activity {
             @Override
             public void onInit(int status) {
                 if (status != TextToSpeech.ERROR) {
-                    TTSObj.setLanguage(Locale.US);
+                    TTSObj.setLanguage(Locale.UK);
                 }
 
             }
@@ -251,6 +334,7 @@ public class MainActivity extends Activity {
             nightModeButt.setBackgroundResource(R.drawable.n_ic_action_brightness_high);
             TTSButt.setBackgroundResource(R.drawable.n_ic_action_volume_on);
             resetButt.setBackgroundResource(R.drawable.n_ic_action_refresh);
+            searchButt.setBackgroundResource(R.drawable.n_ic_action_search);
 
             isNightMode = true;
         } else {
@@ -262,6 +346,7 @@ public class MainActivity extends Activity {
             nightModeButt.setBackgroundResource(R.drawable.ic_action_brightness_high);
             TTSButt.setBackgroundResource(R.drawable.ic_action_volume_on);
             resetButt.setBackgroundResource(R.drawable.ic_action_refresh);
+            searchButt.setBackgroundResource(R.drawable.ic_action_search);
             isNightMode = false;
         }
 

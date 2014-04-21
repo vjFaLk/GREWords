@@ -49,6 +49,25 @@ public class DataBaseHelper extends SQLiteOpenHelper {
         return word;
     }
 
+    public List<String> getWordByAlphabet(String letter) {
+        String query = "SELECT word FROM word_list WHERE word LIKE 'a%'";
+
+        List<String> wordList = new ArrayList<String>();
+        // 2. get reference to writable DB
+        SQLiteDatabase db = this.getWritableDatabase();
+        Cursor cursor = db.rawQuery(query, null);
+        if (cursor != null)
+            cursor.moveToFirst();
+
+        while (!cursor.isLast()) {
+            wordList.add(cursor.getString(0));
+            cursor.moveToNext();
+        }
+        close();
+        return wordList;
+
+    }
+
     public ArrayList<String> getWordListForSearch(String letter) {
         String query = "SELECT word FROM word_list WHERE word LIKE '" + letter + "%' OR word='" + letter + "'";
         System.out.println(letter);
