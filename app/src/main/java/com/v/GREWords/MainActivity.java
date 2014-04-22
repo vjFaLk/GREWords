@@ -37,21 +37,21 @@ import java.util.Locale;
 public class MainActivity extends Activity {
 
 
-    String definition = "", word = "";
-    TextView mainText, defText;
-    int currentIndex = -1;
-    Button prevButt, nextButt, TTSButt, nightModeButt, resetButt, invisbleButt, searchButt;
-    boolean shownDef = false, shownFade = false, isNightMode = false, defChecked = false;
-    TextToSpeech TTSObj;
-    List wordList = new ArrayList();
-    List wordIDList = new ArrayList();
-    List defList = new ArrayList();
-    DataBaseHelper data = new DataBaseHelper(this);
-    ArrayList<String> listItems, listAlphabets;
-    ArrayAdapter<String> adapter, alphaAdapter;
-    SearchView search;
-    ListView list, alphalist;
-    SlidingLayer slidingLayerRight, slidingLayerLeft;
+    private String definition = "", word = "";
+    private TextView mainText, defText;
+    private int currentIndex = -1;
+    private Button prevButt, nextButt, TTSButt, nightModeButt, resetButt, invisibleButt, searchButt;
+    private boolean shownDef = false, shownFade = false, isNightMode = false, defChecked = false;
+    private TextToSpeech TTSObj;
+    private List wordList = new ArrayList();
+    private List wordIDList = new ArrayList();
+    private List defList = new ArrayList();
+    private DataBaseHelper data = new DataBaseHelper(this);
+    private ArrayList<String> listItems, listAlphabets;
+    private ArrayAdapter<String> adapter, alphaAdapter;
+    private SearchView search;
+    private ListView list, alphalist;
+    private SlidingLayer slidingLayerRight, slidingLayerLeft;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -91,9 +91,20 @@ public class MainActivity extends Activity {
         TTSButt = (Button) findViewById(R.id.TTSButton);
         resetButt = (Button) findViewById(R.id.resetButton);
         nightModeButt = (Button) findViewById(R.id.NightButton);
-        invisbleButt = (Button) findViewById(R.id.invisibleButton);
+        invisibleButt = (Button) findViewById(R.id.invisibleButton);
         searchButt = (Button) findViewById(R.id.searchButton);
         search = (SearchView) findViewById(R.id.searchView);
+        setSlidingLayers();
+        listAlphabets = new ArrayList<String>();
+        listItems = new ArrayList<String>();
+        prevButt.setVisibility(View.GONE);
+        list.setVisibility(View.GONE);
+        resetButt.setVisibility(View.GONE);
+        slidingLayerLeft.setVisibility(View.GONE);
+
+    }
+
+    private void setSlidingLayers() {
         slidingLayerRight = (SlidingLayer) findViewById(R.id.slidingLayer1);
         slidingLayerRight.setShadowWidthRes(R.dimen.shadow_width);
         slidingLayerRight.setOffsetWidth(12);
@@ -106,15 +117,9 @@ public class MainActivity extends Activity {
         slidingLayerLeft.setShadowDrawable(R.drawable.sidebar_shadow);
         slidingLayerLeft.setStickTo(SlidingLayer.STICK_TO_LEFT);
         slidingLayerLeft.setCloseOnTapEnabled(true);
-        listAlphabets = new ArrayList<String>();
-        listItems = new ArrayList<String>();
-        prevButt.setVisibility(View.GONE);
-        list.setVisibility(View.GONE);
-        resetButt.setVisibility(View.GONE);
-        slidingLayerLeft.setVisibility(View.GONE);
-
 
     }
+
 
     private void populateAlphabets() {
         char temp;
@@ -226,7 +231,7 @@ public class MainActivity extends Activity {
             }
         });
 
-        invisbleButt.setOnClickListener(new View.OnClickListener() {
+        invisibleButt.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 if (shownDef)
@@ -305,7 +310,7 @@ public class MainActivity extends Activity {
         mainText.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (shownDef == false)
+                if (!shownDef)
                     showDefinition();
                 else
                     hideDefinition();
@@ -412,7 +417,7 @@ public class MainActivity extends Activity {
     }
 
 
-    private boolean checkList() {
+    private void checkList() {
         Animation out = new AlphaAnimation(1.0f, 0.0f);
         out.setDuration(200);
 
@@ -420,9 +425,9 @@ public class MainActivity extends Activity {
             prevButt.setVisibility(View.GONE);
             prevButt.setAnimation(out);
             shownFade = false;
-            return false;
+
         }
-        return true;
+
     }
 
 
