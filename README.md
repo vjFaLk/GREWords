@@ -20,7 +20,7 @@ Features:
 
 > Search
 
-> Only show words starting from a specific letter
+> Filter words starting from a specific letter
 
 > Lightweight (470Kb)
 
