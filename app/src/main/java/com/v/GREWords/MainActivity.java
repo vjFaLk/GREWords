@@ -96,7 +96,7 @@ public class MainActivity extends Activity {
         listAlphabets = new ArrayList<String>();
         listItems = new ArrayList<String>();
         prevButt.setVisibility(View.GONE);
-        list.setVisibility(View.GONE);
+
         resetButt.setVisibility(View.GONE);
 
     }
@@ -234,7 +234,6 @@ public class MainActivity extends Activity {
 
             @Override
             public boolean onQueryTextChange(String s) {
-                list.setVisibility(View.VISIBLE);
                 listItems.clear();
                 if (!s.isEmpty()) {
                     listItems.addAll(data.getWordListForSearch(search.getQuery().toString()));
