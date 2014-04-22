@@ -3,9 +3,9 @@
     <dimen name="activity_horizontal_margin">16dp</dimen>
     <dimen name="activity_vertical_margin">16dp</dimen>
     <dimen name="shadow_width">12dp</dimen>
-    <dimen name="layer_width">300dp</dimen>
-    <dimen name="layer_width2">50dp</dimen>
-    <dimen name="offset_width">4dp</dimen>
+    <dimen name="layer_width">230dp</dimen>
+    <dimen name="layer_width2">45dp</dimen>
+    <dimen name="offset_width">8dp</dimen>
 </resources>
 
 

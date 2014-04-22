@@ -49,8 +49,9 @@ public class DataBaseHelper extends SQLiteOpenHelper {
         return word;
     }
 
+
     public List<String> getWordByAlphabet(String letter) {
-        String query = "SELECT word FROM word_list WHERE word LIKE 'a%'";
+        String query = "SELECT word FROM word_list WHERE word LIKE '" + letter + "%' ORDER BY random()";
 
         List<String> wordList = new ArrayList<String>();
         // 2. get reference to writable DB
@@ -70,7 +71,6 @@ public class DataBaseHelper extends SQLiteOpenHelper {
 
     public ArrayList<String> getWordListForSearch(String letter) {
         String query = "SELECT word FROM word_list WHERE word LIKE '" + letter + "%' OR word='" + letter + "'";
-        System.out.println(letter);
         ArrayList<String> wordList = new ArrayList<String>();
         // 2. get reference to writable DB
         SQLiteDatabase db = this.getWritableDatabase();
@@ -148,22 +148,6 @@ public class DataBaseHelper extends SQLiteOpenHelper {
         SQLiteDatabase db = this.getWritableDatabase();
         db.execSQL(query);
     }
-
-    public void test() {
-        String query = "SELECT word FROM word_list WHERE visit_count = 1";
-        SQLiteDatabase db = this.getWritableDatabase();
-        Cursor cursor = db.rawQuery(query, null);
-        if (cursor != null)
-            cursor.moveToFirst();
-
-        for (int i = 0; i < 10; i++) {
-            System.out.println(cursor.getString(0));
-            cursor.moveToNext();
-        }
-
-
-    }
-
 
 
 

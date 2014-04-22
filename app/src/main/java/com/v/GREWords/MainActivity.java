@@ -4,7 +4,6 @@ import android.animation.ArgbEvaluator;
 import android.animation.ObjectAnimator;
 import android.app.Activity;
 import android.content.Context;
-import android.content.res.Configuration;
 import android.database.SQLException;
 import android.graphics.Color;
 import android.os.Bundle;
@@ -37,35 +36,33 @@ import java.util.Locale;
 public class MainActivity extends Activity {
 
 
-    private String definition = "", word = "";
+    private String word = "";
     private TextView mainText, defText;
     private int currentIndex = -1;
     private Button prevButt, nextButt, TTSButt, nightModeButt, resetButt, invisibleButt, searchButt;
-    private boolean shownDef = false, shownFade = false, isNightMode = false, defChecked = false;
+    private boolean shownDef = false, shownFade = false, isNightMode = false, defChecked = false, isAlphabetSelected = false;
     private TextToSpeech TTSObj;
     private List wordList = new ArrayList();
     private List wordIDList = new ArrayList();
-    private List defList = new ArrayList();
     private DataBaseHelper data = new DataBaseHelper(this);
     private ArrayList<String> listItems, listAlphabets;
     private ArrayAdapter<String> adapter, alphaAdapter;
     private SearchView search;
     private ListView list, alphalist;
     private SlidingLayer slidingLayerRight, slidingLayerLeft;
+    private RelativeLayout relLay;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         this.requestWindowFeature(Window.FEATURE_NO_TITLE);
-        if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT)
             setContentView(R.layout.activity_main);
-        else
-            setContentView(R.layout.activity_main_landscape);
+
 
         Initialize();
         setActionListeners();
         getWord();
-        // populateAlphabets();
+        populateAlphabets();
 
 
         adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, listItems);
@@ -94,13 +91,13 @@ public class MainActivity extends Activity {
         invisibleButt = (Button) findViewById(R.id.invisibleButton);
         searchButt = (Button) findViewById(R.id.searchButton);
         search = (SearchView) findViewById(R.id.searchView);
+        relLay = (RelativeLayout) findViewById(R.id.container);
         setSlidingLayers();
         listAlphabets = new ArrayList<String>();
         listItems = new ArrayList<String>();
         prevButt.setVisibility(View.GONE);
         list.setVisibility(View.GONE);
         resetButt.setVisibility(View.GONE);
-        slidingLayerLeft.setVisibility(View.GONE);
 
     }
 
@@ -124,9 +121,12 @@ public class MainActivity extends Activity {
     private void populateAlphabets() {
         char temp;
 
-        for (int i = 65, j = 0; i <= 91; i++, j++) {
-            temp = (char) i;
-            listAlphabets.add(String.valueOf(temp));
+        listAlphabets.add("∅");
+        for (int i = 65; i < 91; i++) {
+            if (i != 88) {
+                temp = (char) i;
+                listAlphabets.add(String.valueOf(temp));
+            }
         }
 
 
@@ -134,6 +134,55 @@ public class MainActivity extends Activity {
 
 
     private void setActionListeners() {
+
+
+        relLay.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (slidingLayerLeft.isOpened() || slidingLayerRight.isOpened()) {
+                    slidingLayerLeft.closeLayer(true);
+                    slidingLayerRight.closeLayer(true);
+                }
+            }
+        });
+
+        alphalist.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                Animation out = new AlphaAnimation(1.0f, 0.0f);
+                out.setDuration(300);
+                if (i != 0) {
+                    String letter = ((TextView) view).getText().toString();
+                    wordList = data.getWordByAlphabet(letter);
+                    slidingLayerLeft.closeLayer(true);
+                    mainText.setText(wordList.get(0).toString());
+                    currentIndex = 0;
+                    prevButt.setVisibility(View.GONE);
+                    prevButt.setAnimation(out);
+                    isAlphabetSelected = true;
+                    search.setQuery(letter, false);
+                    shownFade = false;
+                } else {
+                    slidingLayerLeft.closeLayer(true);
+                    wordList.clear();
+                    currentIndex = 0;
+                    out.setDuration(300);
+                    prevButt.setVisibility(View.GONE);
+                    if (!shownDef)
+                        prevButt.setAnimation(out);
+                    isAlphabetSelected = false;
+                    shownFade = false;
+                    getWord();
+                }
+            }
+        });
+
+        search.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                search.setQuery("", false);
+            }
+        });
 
 
         searchButt.setOnClickListener(new View.OnClickListener() {
@@ -150,8 +199,6 @@ public class MainActivity extends Activity {
             @Override
             public void onOpen() {
 
-                if (search.isIconified())
-                    search.setIconified(false);
 
 
             }
@@ -207,10 +254,8 @@ public class MainActivity extends Activity {
                 Animation in = new AlphaAnimation(0.0f, 1.0f);
                 in.setDuration(200);
                 String tempWord = ((TextView) view).getText().toString();
-                String tempDef = data.getDefinitionforWord(tempWord);
                 mainText.setText(tempWord);
                 mainText.setAnimation(in);
-                definition = tempDef;
                 word = tempWord;
 
                 slidingLayerRight.closeLayer(true);
@@ -288,9 +333,12 @@ public class MainActivity extends Activity {
 
                 if (((wordList.size()) - 1) > currentIndex)
                     getWordFromList();
-                else
+                else {
+                    if (isAlphabetSelected)
+                        currentIndex = 0;
+                    else
                     getWord();
-
+                }
                 defChecked = false;
 
 
@@ -317,11 +365,17 @@ public class MainActivity extends Activity {
 
                 defChecked = true;
 
+                getDefinition();
+
 
             }
         });
 
+    }
 
+    private void getDefinition() {
+        String tempDef = data.getDefinitionforWord(mainText.getText().toString());
+        defText.setText(tempDef);
     }
 
 
@@ -359,7 +413,7 @@ public class MainActivity extends Activity {
 
 
     private void pronounceWord() {
-        TTSObj.speak(word, TextToSpeech.QUEUE_FLUSH, null);
+        TTSObj.speak(mainText.getText().toString(), TextToSpeech.QUEUE_FLUSH, null);
     }
 
 
@@ -394,7 +448,7 @@ public class MainActivity extends Activity {
             translation.setFillAfter(true);
             translation.setInterpolator(new OvershootInterpolator());
             findViewById(R.id.textView).startAnimation(translation);
-            defText.setText(definition);
+            // defText.setText(definition);
             defText.startAnimation(in);
             shownDef = true;
         }
@@ -408,7 +462,6 @@ public class MainActivity extends Activity {
         Animation in = new AlphaAnimation(0.0f, 1.0f);
         in.setDuration(200);
         word = wordList.get(currentIndex).toString();
-        definition = defList.get(currentIndex).toString();
         mainText.setText(word);
         mainText.setAnimation(in);
         shownDef = false;
@@ -440,7 +493,6 @@ public class MainActivity extends Activity {
         mainText.setText(wordList.get(currentIndex).toString());
         word = mainText.getText().toString();
         mainText.setAnimation(in);
-        definition = defList.get(currentIndex).toString();
         shownDef = false;
         checkList();
 
@@ -466,7 +518,6 @@ public class MainActivity extends Activity {
             word = data.getWord();
             mainText.setText(word);
             mainText.setAnimation(in);
-            definition = data.getDefinition();
         } catch (SQLException sqle) {
 
             throw sqle;
@@ -474,7 +525,6 @@ public class MainActivity extends Activity {
 
         wordList.add(word);
         wordIDList.add(data.getWordID());
-        defList.add(definition);
 
 
         currentIndex++;
