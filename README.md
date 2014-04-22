@@ -1,7 +1,7 @@
 GREWords
 ========
 
-This is a simple (yet quite functional) Android App that helps to test the Vocabulary of students who are preparing for the GRE Examination.
+This is a simple (yet functional) Android App that helps to test the Vocabulary of students who are preparing for the GRE Examination.
 
 
 Uses Gradle build system, compile using Android Studio.
