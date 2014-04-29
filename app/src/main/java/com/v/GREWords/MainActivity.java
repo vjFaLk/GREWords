@@ -56,7 +56,7 @@ public class MainActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         this.requestWindowFeature(Window.FEATURE_NO_TITLE);
-            setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_main);
 
 
         Initialize();
@@ -151,14 +151,19 @@ public class MainActivity extends Activity {
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
                 Animation out = new AlphaAnimation(1.0f, 0.0f);
                 out.setDuration(300);
+                Animation in = new AlphaAnimation(0.0f, 1.0f);
+                in.setDuration(300);
                 if (i != 0) {
                     String letter = ((TextView) view).getText().toString();
                     wordList = data.getWordByAlphabet(letter);
                     slidingLayerLeft.closeLayer(true);
                     mainText.setText(wordList.get(0).toString());
+                    mainText.setAnimation(in);
                     currentIndex = 0;
-                    prevButt.setVisibility(View.GONE);
-                    prevButt.setAnimation(out);
+                    if (prevButt.getVisibility() != View.GONE) {
+                        prevButt.setVisibility(View.GONE);
+                        prevButt.setAnimation(out);
+                    }
                     isAlphabetSelected = true;
                     search.setQuery(letter, false);
                     shownFade = false;
@@ -167,9 +172,10 @@ public class MainActivity extends Activity {
                     wordList.clear();
                     currentIndex = 0;
                     out.setDuration(300);
-                    prevButt.setVisibility(View.GONE);
-                    if (!shownDef)
+                    if (prevButt.getVisibility() != View.GONE) {
+                        prevButt.setVisibility(View.GONE);
                         prevButt.setAnimation(out);
+                    }
                     isAlphabetSelected = false;
                     shownFade = false;
                     getWord();
@@ -198,7 +204,6 @@ public class MainActivity extends Activity {
 
             @Override
             public void onOpen() {
-
 
 
             }
@@ -246,7 +251,6 @@ public class MainActivity extends Activity {
         });
 
 
-
         list.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
@@ -258,9 +262,6 @@ public class MainActivity extends Activity {
                 word = tempWord;
 
                 slidingLayerRight.closeLayer(true);
-
-
-
 
 
             }
@@ -327,6 +328,7 @@ public class MainActivity extends Activity {
                 if (!shownFade) {
                     prevButt.setVisibility(View.VISIBLE);
                     prevButt.setAnimation(in);
+
                     shownFade = true;
                 }
 
@@ -335,8 +337,12 @@ public class MainActivity extends Activity {
                 else {
                     if (isAlphabetSelected)
                         currentIndex = 0;
-                    else
-                    getWord();
+                    else {
+                        if (!defChecked) {
+                            wordIDList.add(data.getWordID());
+                        }
+                        getWord();
+                    }
                 }
                 defChecked = false;
 
@@ -523,7 +529,6 @@ public class MainActivity extends Activity {
         }
 
         wordList.add(word);
-        wordIDList.add(data.getWordID());
 
 
         currentIndex++;

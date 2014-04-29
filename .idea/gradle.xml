@@ -7,9 +7,9 @@
         <option name="externalProjectPath" value="$PROJECT_DIR$" />
         <option name="modules">
           <set>
-            <option value="C:\Users\V\AndroidStudioProjects\GREWords" />
-            <option value="C:\Users\V\AndroidStudioProjects\GREWords\Library" />
-            <option value="C:\Users\V\AndroidStudioProjects\GREWords\app" />
+            <option value="$PROJECT_DIR$" />
+            <option value="$PROJECT_DIR$/Library" />
+            <option value="$PROJECT_DIR$/app" />
           </set>
         </option>
       </GradleProjectSettings>
