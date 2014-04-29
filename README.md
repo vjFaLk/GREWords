@@ -10,7 +10,7 @@ Features:
 
 > 4800+ Words
 
-> Display random word and it's definition
+> Displays random word and it's definition
 
 > Smart Filter (Doesn't repeat words that are known)
 
