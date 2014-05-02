@@ -180,6 +180,7 @@ public class MainActivity extends Activity {
                     shownFade = false;
                     getWord();
                 }
+                hideDefinition();
             }
         });
 
@@ -255,12 +256,12 @@ public class MainActivity extends Activity {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
                 Animation in = new AlphaAnimation(0.0f, 1.0f);
-                in.setDuration(200);
+                in.setDuration(300);
                 String tempWord = ((TextView) view).getText().toString();
                 mainText.setText(tempWord);
                 mainText.setAnimation(in);
                 word = tempWord;
-
+                hideDefinition();
                 slidingLayerRight.closeLayer(true);
 
 
@@ -320,8 +321,10 @@ public class MainActivity extends Activity {
 
 
                 if (shownDef) {
-                    findViewById(R.id.textView).clearAnimation();
-                    defText.setText(" ");
+                    Animation out = new AlphaAnimation(1.0f, 0.0f);
+                    out.setDuration(100);
+                    defText.setVisibility(View.GONE);
+                    defText.setAnimation(out);
                 }
 
 
@@ -387,7 +390,7 @@ public class MainActivity extends Activity {
     private void toggleNightMode() {
         RelativeLayout lay = (RelativeLayout) findViewById(R.id.container);
         ObjectAnimator colorFade = ObjectAnimator.ofObject(lay, "backgroundColor", new ArgbEvaluator(), Color.argb(211, 211, 211, 211), 0xff000000);
-        colorFade.setDuration(500);
+        colorFade.setDuration(400);
 
         if (!isNightMode) {
             colorFade.start();
@@ -434,7 +437,7 @@ public class MainActivity extends Activity {
             translation.setDuration(300);
             translation.setFillAfter(true);
             translation.setInterpolator(new AccelerateDecelerateInterpolator());
-            findViewById(R.id.textView).startAnimation(translation);
+            mainText.startAnimation(translation);
             shownDef = false;
         }
     }
@@ -465,7 +468,7 @@ public class MainActivity extends Activity {
 
         currentIndex++;
         Animation in = new AlphaAnimation(0.0f, 1.0f);
-        in.setDuration(200);
+        in.setDuration(300);
         word = wordList.get(currentIndex).toString();
         mainText.setText(word);
         mainText.setAnimation(in);
@@ -477,7 +480,7 @@ public class MainActivity extends Activity {
 
     private void checkList() {
         Animation out = new AlphaAnimation(1.0f, 0.0f);
-        out.setDuration(200);
+        out.setDuration(300);
 
         if (currentIndex < 1) {
             prevButt.setVisibility(View.GONE);
@@ -492,7 +495,7 @@ public class MainActivity extends Activity {
     private void goBack() {
         currentIndex--;
         Animation in = new AlphaAnimation(0.0f, 1.0f);
-        in.setDuration(200);
+        in.setDuration(300);
         findViewById(R.id.textView).clearAnimation();
         defText.setText(" ");
         mainText.setText(wordList.get(currentIndex).toString());
@@ -508,7 +511,7 @@ public class MainActivity extends Activity {
 
 
         Animation in = new AlphaAnimation(0.0f, 1.0f);
-        in.setDuration(500);
+        in.setDuration(300);
 
 
         try {
