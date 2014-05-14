@@ -1,10 +1,10 @@
 /**
  *
  *
- *  I have written down comments where the code seemed a little complex or I wrote it lazily.
- *  Comments aren't in too much detail, however, any decent programmer can figure out what is happening.
- *  I've mostly commented above functions or 'if' blocks, if there is no comment, I consider the code to be self explanatory.
- *
+ *  I have written down comments where the code seemed a little complex or written lazily.
+ *  Comments aren't too detailed, however, any decent programmer can figure out what is happening.
+ *  I've mostly commented above functions or 'if' blocks.
+ *  If there is no comment, I consider the code to be self explanatory.
  *
  *
  * */
@@ -58,26 +58,37 @@ public class MainActivity extends Activity {
     private List smartFilterList = new ArrayList();
     private DataBaseHelper data = new DataBaseHelper(this);
     private ArrayList<String> listSearchWords, listAlphabets;
-    private ArrayAdapter<String> adapter, alphaAdapter;
+    private ArrayAdapter<String> searchListAdapter, alphabetListAdapter;
     private SearchView search;
-    private ListView list, alphalist;
+    private ListView searchList, alphabetList;
     private SlidingLayer slidingLayerRight, slidingLayerLeft;
     private RelativeLayout relLay;
 
 
     /**
      * What variable does what.
-     * <p/>
+     *
      * I'm going to explain only the ones that aren't straight forward.
-     * <p/>
+     *
      * currentIndex keeps track of what word the user is at in the app, it helps in traversing the WordList used for going back.
+     *
      * shownDef changes when the definition is shown or hidden, it helps in Showing or Hiding the definition and not repeating animations.
+     *
      * shownFade changes when a new alphabet filter is picked or the WordList has only one word in it, it helps in knowing if the back button is visible or not.
+     *
      * defChecked changes when the Definition is shown, it helps in not repeating animations and also deciding what words are picked for the smart-filter.
+     *
      * TTSObj is the Text To Speech Object that allows us to use the Pronunciation
+     *
      * wordList is a list of words that contains every word that is selected randomly from the database, it helps in going back.
+     *
      * smartFilterList is a list of words that are to be marked as "known" in the database so they don't show up again, this is basically the smart filter.
-     * listSearchWords is the list of words that populates the ListView on the right layer according to the search query.
+     *
+     * listSearchWords is the list of words that populates the ListView (searchList) on the right layer according to the search query.
+     *
+     * listAlphabets is the list of alphabets that populates the ListView (alphabetList) on the left layer according with alphabets.
+     *
+     *
      */
 
     @Override
@@ -97,21 +108,21 @@ public class MainActivity extends Activity {
 
     //There is one ListView on each Sliding Drawer on either side of the screen, this method sets the Adapters for each of the ListViews
     private void setAdapters() {
-        adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, listSearchWords);
-        list.setAdapter(adapter);
-        list.setTextFilterEnabled(true);
+        searchListAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, listSearchWords);
+        searchList.setAdapter(searchListAdapter);
+        searchList.setTextFilterEnabled(true);
 
-        alphaAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, listAlphabets);
-        alphalist.setAdapter(alphaAdapter);
-        alphalist.setTextFilterEnabled(true);
+        alphabetListAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, listAlphabets);
+        alphabetList.setAdapter(alphabetListAdapter);
+        alphabetList.setTextFilterEnabled(true);
 
-        alphaAdapter.notifyDataSetChanged();
+        alphabetListAdapter.notifyDataSetChanged();
     }
 
 
     private void Initialize() {
-        list = (ListView) findViewById(R.id.listView);
-        alphalist = (ListView) findViewById(R.id.alphabetlistView);
+        searchList = (ListView) findViewById(R.id.listView);
+        alphabetList = (ListView) findViewById(R.id.alphabetlistView);
         defText = (TextView) findViewById(R.id.textView2);
         mainText = (TextView) findViewById(R.id.textView);
         prevButt = (Button) findViewById(R.id.buttonPrev);
@@ -179,7 +190,7 @@ public class MainActivity extends Activity {
         });
 
         //This is the code behind the ListView on the left.
-        alphalist.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+        alphabetList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
                 Animation out = new AlphaAnimation(1.0f, 0.0f);
@@ -189,7 +200,7 @@ public class MainActivity extends Activity {
                 // If ∅ isn't selected, we will retrieve a list of words starting from the letter that has been selected.
                 if (i != 0) {
                     String letter = ((TextView) view).getText().toString();
-                    wordList = data.getWordByAlphabet(letter);
+                    wordList = data.getWordList(letter);
                     slidingLayerLeft.closeLayer(true);
                     mainText.setText(wordList.get(0).toString());
                     mainText.setAnimation(in);
@@ -279,17 +290,17 @@ public class MainActivity extends Activity {
             public boolean onQueryTextChange(String s) {
                 listSearchWords.clear();
                 if (!s.isEmpty()) {
-                    listSearchWords.addAll(data.getWordListForSearch(search.getQuery().toString()));
+                    listSearchWords.addAll(data.getWordList(search.getQuery().toString()));
                 } else {
                     listSearchWords.clear();
                 }
-                adapter.notifyDataSetChanged();
+                searchListAdapter.notifyDataSetChanged();
                 return false;
             }
         });
 
         //If a word from the ListView below the SearchView is selected, the main TextView in the middle changes to the word selected.
-        list.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+        searchList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
                 Animation in = new AlphaAnimation(0.0f, 1.0f);
@@ -424,7 +435,7 @@ public class MainActivity extends Activity {
     }
 
     private void getDefinition() {
-        String tempDef = data.getDefinitionforWord(mainText.getText().toString());
+        String tempDef = data.getDefinition(mainText.getText().toString());
         defText.setText(tempDef);
     }
 
@@ -592,7 +603,7 @@ public class MainActivity extends Activity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        data.setWordsAsRead(smartFilterList);
+        data.setWordsAsKnown(smartFilterList);
 
     }
 

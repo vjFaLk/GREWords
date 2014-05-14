@@ -34,6 +34,7 @@ public class DataBaseHelper extends SQLiteOpenHelper {
     static String word = "";
     int wordID;
 
+
     public String getWord()
     {
         String query = "SELECT _id, word FROM word_list WHERE visit_count = 0 ORDER BY random()";
@@ -50,26 +51,8 @@ public class DataBaseHelper extends SQLiteOpenHelper {
     }
 
 
-    public List<String> getWordByAlphabet(String letter) {
-        String query = "SELECT word FROM word_list WHERE word LIKE '" + letter + "%' ORDER BY random()";
-
-        List<String> wordList = new ArrayList<String>();
-        // 2. get reference to writable DB
-        SQLiteDatabase db = this.getWritableDatabase();
-        Cursor cursor = db.rawQuery(query, null);
-        if (cursor != null)
-            cursor.moveToFirst();
-
-        while (!cursor.isLast()) {
-            wordList.add(cursor.getString(0));
-            cursor.moveToNext();
-        }
-        close();
-        return wordList;
-
-    }
-
-    public ArrayList<String> getWordListForSearch(String letter) {
+    //Gets a list of words beginning from a certain letter or letters. Used for Searching and Filtering.
+    public ArrayList<String> getWordList(String letter) {
         String query = "SELECT word FROM word_list WHERE word LIKE '" + letter + "%' OR word='" + letter + "'";
         ArrayList<String> wordList = new ArrayList<String>();
         // 2. get reference to writable DB
@@ -98,25 +81,7 @@ public class DataBaseHelper extends SQLiteOpenHelper {
     }
 
 
-    public String getDefinition()
-        {
-
-
-        String meaning = "";
-        String query = "SELECT meaning FROM word_list WHERE _id="+wordID;
-
-        // 2. get reference to writable DB
-        SQLiteDatabase db = this.getWritableDatabase();
-        Cursor cursor = db.rawQuery(query, null);
-        if (cursor != null)
-            cursor.moveToFirst();
-        meaning = cursor.getString(0);
-        close();
-        return meaning;
-        }
-
-
-    public String getDefinitionforWord(String word) {
+    public String getDefinition(String word) {
 
 
         String meaning = "";
@@ -133,7 +98,7 @@ public class DataBaseHelper extends SQLiteOpenHelper {
     }
 
 
-    public void setWordsAsRead(List<Integer> words) {
+    public void setWordsAsKnown(List<Integer> words) {
         SQLiteDatabase db = this.getWritableDatabase();
         String query;
         for (int item : words) {
@@ -214,7 +179,7 @@ public class DataBaseHelper extends SQLiteOpenHelper {
     }
 
     /**
-     * Copies your database from your local assets-folder to the just created empty database in the
+     * Copies the database from your local assets-folder to the just created empty database in the
      * system folder, from where it can be accessed and handled.
      * This is done by transfering bytestream.
      * */
@@ -271,8 +236,5 @@ public class DataBaseHelper extends SQLiteOpenHelper {
 
     }
 
-    // Add your public helper methods to access and get content from the database.
-    // You could return cursors by doing "return myDataBase.query(....)" so it'd be easy
-    // to you to create adapters for your views.
 
 }
