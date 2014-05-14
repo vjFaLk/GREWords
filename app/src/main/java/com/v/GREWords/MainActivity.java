@@ -1,3 +1,15 @@
+/**
+ *
+ *
+ *  I have written down comments where the code seemed a little complex or I wrote it lazily.
+ *  Comments aren't in too much detail, however, any decent programmer can figure out what is happening.
+ *  I've mostly commented above functions or 'if' blocks, if there is no comment, I consider the code to be self explanatory.
+ *
+ *
+ *
+ * */
+
+
 package com.v.GREWords;
 
 import android.animation.ArgbEvaluator;
@@ -40,17 +52,33 @@ public class MainActivity extends Activity {
     private TextView mainText, defText;
     private int currentIndex = -1;
     private Button prevButt, nextButt, TTSButt, nightModeButt, resetButt, invisibleButt, searchButt;
-    private boolean shownDef = false, shownFade = false, isNightMode = false, defChecked = false, isAlphabetSelected = false;
+    private boolean shownDef = false, shownFade = false, isNightModeOn = false, defChecked = false, isAlphabetSelected = false;
     private TextToSpeech TTSObj;
     private List wordList = new ArrayList();
-    private List wordIDList = new ArrayList();
+    private List smartFilterList = new ArrayList();
     private DataBaseHelper data = new DataBaseHelper(this);
-    private ArrayList<String> listItems, listAlphabets;
+    private ArrayList<String> listSearchWords, listAlphabets;
     private ArrayAdapter<String> adapter, alphaAdapter;
     private SearchView search;
     private ListView list, alphalist;
     private SlidingLayer slidingLayerRight, slidingLayerLeft;
     private RelativeLayout relLay;
+
+
+    /**
+     * What variable does what.
+     * <p/>
+     * I'm going to explain only the ones that aren't straight forward.
+     * <p/>
+     * currentIndex keeps track of what word the user is at in the app, it helps in traversing the WordList used for going back.
+     * shownDef changes when the definition is shown or hidden, it helps in Showing or Hiding the definition and not repeating animations.
+     * shownFade changes when a new alphabet filter is picked or the WordList has only one word in it, it helps in knowing if the back button is visible or not.
+     * defChecked changes when the Definition is shown, it helps in not repeating animations and also deciding what words are picked for the smart-filter.
+     * TTSObj is the Text To Speech Object that allows us to use the Pronunciation
+     * wordList is a list of words that contains every word that is selected randomly from the database, it helps in going back.
+     * smartFilterList is a list of words that are to be marked as "known" in the database so they don't show up again, this is basically the smart filter.
+     * listSearchWords is the list of words that populates the ListView on the right layer according to the search query.
+     */
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -58,14 +86,18 @@ public class MainActivity extends Activity {
         this.requestWindowFeature(Window.FEATURE_NO_TITLE);
         setContentView(R.layout.activity_main);
 
-
         Initialize();
         setActionListeners();
         getWord();
         populateAlphabets();
+        setAdapters();
 
 
-        adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, listItems);
+    }
+
+    //There is one ListView on each Sliding Drawer on either side of the screen, this method sets the Adapters for each of the ListViews
+    private void setAdapters() {
+        adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, listSearchWords);
         list.setAdapter(adapter);
         list.setTextFilterEnabled(true);
 
@@ -74,7 +106,6 @@ public class MainActivity extends Activity {
         alphalist.setTextFilterEnabled(true);
 
         alphaAdapter.notifyDataSetChanged();
-
     }
 
 
@@ -94,12 +125,11 @@ public class MainActivity extends Activity {
         relLay = (RelativeLayout) findViewById(R.id.container);
         setSlidingLayers();
         listAlphabets = new ArrayList<String>();
-        listItems = new ArrayList<String>();
+        listSearchWords = new ArrayList<String>();
         prevButt.setVisibility(View.GONE);
-
         resetButt.setVisibility(View.GONE);
-
     }
+
 
     private void setSlidingLayers() {
         slidingLayerRight = (SlidingLayer) findViewById(R.id.slidingLayer1);
@@ -117,11 +147,13 @@ public class MainActivity extends Activity {
 
     }
 
-
+    //This populates the listAlphabets list with the symbol ∅ and all other letters of the Alphabet
     private void populateAlphabets() {
         char temp;
 
         listAlphabets.add("∅");
+
+        //The loop goes through 65 to 91, converting each number to it's ASCII equivalent and adding it to the list.
         for (int i = 65; i < 91; i++) {
             if (i != 88) {
                 temp = (char) i;
@@ -135,7 +167,7 @@ public class MainActivity extends Activity {
 
     private void setActionListeners() {
 
-
+        //This closes any sliding layer that is open when you touch something on the main layout.
         relLay.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -146,6 +178,7 @@ public class MainActivity extends Activity {
             }
         });
 
+        //This is the code behind the ListView on the left.
         alphalist.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
@@ -153,6 +186,7 @@ public class MainActivity extends Activity {
                 out.setDuration(300);
                 Animation in = new AlphaAnimation(0.0f, 1.0f);
                 in.setDuration(300);
+                // If ∅ isn't selected, we will retrieve a list of words starting from the letter that has been selected.
                 if (i != 0) {
                     String letter = ((TextView) view).getText().toString();
                     wordList = data.getWordByAlphabet(letter);
@@ -167,6 +201,7 @@ public class MainActivity extends Activity {
                     isAlphabetSelected = true;
                     search.setQuery(letter, false);
                     shownFade = false;
+                    //The ∅ symbol (Stands for Null set) is the first entry in the list, therefore, if that is selected, all alphabet filters will be removed.
                 } else {
                     slidingLayerLeft.closeLayer(true);
                     wordList.clear();
@@ -184,25 +219,27 @@ public class MainActivity extends Activity {
             }
         });
 
-        search.setOnClickListener(new View.OnClickListener() {
+        //Clears the ListView on the right, below the SearchView when you tap on the icon.
+        search.setOnSearchClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 search.setQuery("", false);
+
             }
         });
 
-
+        //Opens up the right SlidingDrawer and also focuses on the SearchView, hence opening the keyboard.
         searchButt.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 slidingLayerRight.openLayer(true);
+                search.setIconified(false);
 
             }
         });
 
+
         slidingLayerRight.setOnInteractListener(new SlidingLayer.OnInteractListener() {
-
-
             @Override
             public void onOpen() {
 
@@ -210,6 +247,7 @@ public class MainActivity extends Activity {
             }
 
             @Override
+            // On closing the SlidingDrawer, the keyboard is also closed.
             public void onClose() {
                 InputMethodManager imm = (InputMethodManager) getSystemService(
                         Context.INPUT_METHOD_SERVICE);
@@ -229,29 +267,28 @@ public class MainActivity extends Activity {
             }
         });
 
+        //Code behind the SearchView
         search.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
-
-
             @Override
             public boolean onQueryTextSubmit(String s) {
-
                 return true;
             }
 
             @Override
+            //Every time the search text is changed, a SQL query is passed to the database retrieving a list of words starting from the query that is passed.
             public boolean onQueryTextChange(String s) {
-                listItems.clear();
+                listSearchWords.clear();
                 if (!s.isEmpty()) {
-                    listItems.addAll(data.getWordListForSearch(search.getQuery().toString()));
+                    listSearchWords.addAll(data.getWordListForSearch(search.getQuery().toString()));
                 } else {
-                    listItems.clear();
+                    listSearchWords.clear();
                 }
                 adapter.notifyDataSetChanged();
                 return false;
             }
         });
 
-
+        //If a word from the ListView below the SearchView is selected, the main TextView in the middle changes to the word selected.
         list.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
@@ -295,6 +332,7 @@ public class MainActivity extends Activity {
             }
         });
 
+        //The code behind the pronunciation.
         TTSObj = new TextToSpeech(getApplicationContext(), new TextToSpeech.OnInitListener() {
             @Override
             public void onInit(int status) {
@@ -312,6 +350,7 @@ public class MainActivity extends Activity {
             }
         });
 
+        //The code behind the Next Button. This is a little wacky, gets a little crazy, I'll try to explain.
         nextButt.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -335,14 +374,17 @@ public class MainActivity extends Activity {
                     shownFade = true;
                 }
 
+                //The below if statement checks if we need a new word or not, if the back button was used, we have to retrieve the words from the WordList.
                 if (((wordList.size()) - 1) > currentIndex)
                     getWordFromList();
                 else {
-                    if (isAlphabetSelected)
+                    //The below if statement checks if a specific letter has been selected from the Left Sliding Layer, if yes, we keep the currentIndex at 0 and not get a random word form the database.
+                    if (isAlphabetSelected) {
                         currentIndex = 0;
-                    else {
+                    } else {
+                        //If the definition is not checked, it's added to the WordIDList.
                         if (!defChecked) {
-                            wordIDList.add(data.getWordID());
+                            smartFilterList.add(data.getWordID());
                         }
                         getWord();
                     }
@@ -386,13 +428,13 @@ public class MainActivity extends Activity {
         defText.setText(tempDef);
     }
 
-
+    //Pretty basic, the icons get changed from their Normal versions to the Dark versions and the background fades into Black once you toggle it on, and vice versa.
     private void toggleNightMode() {
         RelativeLayout lay = (RelativeLayout) findViewById(R.id.container);
         ObjectAnimator colorFade = ObjectAnimator.ofObject(lay, "backgroundColor", new ArgbEvaluator(), Color.argb(211, 211, 211, 211), 0xff000000);
         colorFade.setDuration(400);
 
-        if (!isNightMode) {
+        if (!isNightModeOn) {
             colorFade.start();
             mainText.setTextColor(Color.LTGRAY);
             defText.setTextColor(Color.LTGRAY);
@@ -403,7 +445,7 @@ public class MainActivity extends Activity {
             resetButt.setBackgroundResource(R.drawable.n_ic_action_refresh);
             searchButt.setBackgroundResource(R.drawable.n_ic_action_search);
 
-            isNightMode = true;
+            isNightModeOn = true;
         } else {
             colorFade.reverse();
             mainText.setTextColor(Color.BLACK);
@@ -414,7 +456,7 @@ public class MainActivity extends Activity {
             TTSButt.setBackgroundResource(R.drawable.ic_action_volume_on);
             resetButt.setBackgroundResource(R.drawable.ic_action_refresh);
             searchButt.setBackgroundResource(R.drawable.ic_action_search);
-            isNightMode = false;
+            isNightModeOn = false;
         }
 
     }
@@ -463,7 +505,7 @@ public class MainActivity extends Activity {
 
     }
 
-
+    //If the user has used the back button, this method is called to retrieve a word from the WordList
     private void getWordFromList() {
 
         currentIndex++;
@@ -477,7 +519,7 @@ public class MainActivity extends Activity {
 
     }
 
-
+    //Checks if the the user can go back or not, depending on the words in the WordList. If not, then the back button is faded to oblivion.
     private void checkList() {
         Animation out = new AlphaAnimation(1.0f, 0.0f);
         out.setDuration(300);
@@ -506,7 +548,7 @@ public class MainActivity extends Activity {
 
     }
 
-
+    //Gets a random word from the Database.
     private void getWord() {
 
 
@@ -531,6 +573,7 @@ public class MainActivity extends Activity {
             throw sqle;
         }
 
+
         wordList.add(word);
 
 
@@ -549,7 +592,7 @@ public class MainActivity extends Activity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        data.setWordsAsRead(wordIDList);
+        data.setWordsAsRead(smartFilterList);
 
     }
 
